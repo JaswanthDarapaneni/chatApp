@@ -1,0 +1,24 @@
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="back()" class="backbutton" [ngClass]="{'hide-on-large-screen': isSmallScreen()}">
+        <ion-icon name="back" aria-hidden="true"></ion-icon>
+        back
+      </ion-button>
+    </ion-buttons>
+    <ion-title >{{selectedUser}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-list *ngIf="selectedUser">
+    <ion-item *ngFor="let message of messages">
+      <ion-label>{{ message.from }}: {{ message.message }}</ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ion-item *ngIf="selectedUser">
+    <ion-input placeholder="Type a message" [(ngModel)]="newMessage"></ion-input>
+    <ion-button color="primary" (click)="sendMessageToRecipient(newMessage)">Send</ion-button>
+  </ion-item>
+</ion-content>

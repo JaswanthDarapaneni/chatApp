@@ -1,0 +1,21 @@
+
+  <ion-content class="ion-padding" *ngIf="users">
+  <div class="ion-page main" id="main-content"  >
+      <div class="sidebar" >
+       <h1>hi</h1>
+      </div>
+      <div class="userbar" >
+        <ion-list *ngIf="users.length > 0">
+          <ion-item *ngFor="let user of users" (click)="navigateToChat(user)">
+            <ion-avatar aria-hidden="true" slot="start">
+              <img alt="" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+            </ion-avatar>
+            <ion-label> {{ user.userId}}</ion-label>
+          </ion-item>
+        </ion-list>
+      </div>
+      <div class="chatbar" >
+        <app-chat [userSelected]="userSelected"></app-chat>
+      </div>
+  </div>
+</ion-content>

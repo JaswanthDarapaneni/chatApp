@@ -1,0 +1,40 @@
+.message-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+.message-container.sent {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  border-radius: 10px;
+  padding: 10px;
+  max-width: 70%;
+}
+
+.message-bubble.sent {
+  background-color: #DCF8C6;
+}
+
+.message-bubble.received {
+  background-color: #FFFFFF;
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-text {
+  font-size: 16px;
+}
+
+.message-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #999999;
+  font-size: 12px;
+}

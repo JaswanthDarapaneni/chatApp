@@ -1,0 +1,31 @@
+ion-content {
+	
+	--background: url('https://images.unsplash.com/photo-1536431311719-398b6704d4cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1234&q=80')
+		0 0/100% 100% no-repeat;
+}
+.container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+  }
+.input-group {
+
+	border-radius: 10px;
+	overflow: hidden;
+	margin-bottom: 15px;
+}
+ion-item{
+	padding: 10px;
+}
+.errors {
+	font-size: x-small;
+	color: #f61a1a;
+	// background: var(--ion-color-danger);
+	padding-left: 15px;
+	// padding-top: 5px;
+	// padding-bottom: 5px;
+}
+ion-input{
+	font-size: 12px;
+}

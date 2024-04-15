@@ -1,0 +1,53 @@
+<ion-content [fullscreen]="true" no-margin no-padding class="ion-padding">
+
+  <div class="container">
+    <form (ngSubmit)="register()" [formGroup]="credentials">
+      <div class="input-group" *ngIf="credentials">
+        <ion-item>
+          <ion-input type="text"  placeholder="Name" formControlName="fullname"></ion-input>
+        </ion-item>
+        <div *ngIf="credentials.get('fullname')?.hasError('required') && credentials.get('fullname')?.touched" class="errors">
+          <span>Name is required</span>
+        </div>
+        
+        <ion-item>
+          <ion-input type="email"  placeholder="swiggyCodder@gmail.com" formControlName="email"></ion-input>
+        </ion-item>
+        <div *ngIf="credentials.get('email')?.hasError('required') && credentials.get('email')?.touched" class="errors">
+          <span>Email is required</span>
+        </div>
+        <div *ngIf="credentials.get('email')?.hasError('email') && credentials.get('email')?.touched" class="errors">
+          <span>Email is invalid</span>
+        </div>
+        <ion-item>
+          <ion-input type="number"  placeholder="+91 XXXXXXXXXX" formControlName="number"></ion-input>
+        </ion-item>
+        <div *ngIf="credentials.get('number')?.hasError('required') && credentials.get('number')?.touched" class="errors">
+          <span>Number is required</span>
+        </div>
+        <div *ngIf="credentials.get('number')?.hasError('pattern') && credentials.get('number')?.touched" class="errors">
+          <span>Number is invalid</span>
+        </div>
+        
+        <ion-item>
+          <ion-input type="password" placeholder="Password" formControlName="password"></ion-input>
+        </ion-item>
+        <div *ngIf="credentials.get('password')?.hasError('required') && credentials.get('password')?.touched"
+          class="errors">
+          <span>Password is required</span>
+        </div>
+        <div *ngIf="credentials.get('password')?.hasError('minlength') && credentials.get('password')?.touched"
+          class="errors">
+          <span>Password needs to be 6 characters</span>
+        </div>
+      </div>
+
+      <ion-button type="submit" expand="block" [disabled]="!credentials.valid">Register</ion-button>
+      <div style="display: flex;justify-content: space-between;">
+        <small>Allready have an account?</small>
+        <small><a href="/login">SignIn</a></small>
+      </div>
+    </form>
+  </div>
+
+</ion-content>

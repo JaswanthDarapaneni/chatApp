@@ -1,0 +1,72 @@
+<!-- <ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>login</ion-title>
+  </ion-toolbar>
+</ion-header> -->
+<!-- <ion-grid class="ion-no-padding" style="height: 100%;">
+    <ion-row class="ion-align-items-center ion-justify-content-center" style="height: 100%;">
+      <ion-col size="12" size-md="6" class="ion-text-center">
+        <ion-item lines="none">
+          <ion-label position="stacked">Username</ion-label>
+          <ion-input type="text" [(ngModel)]="username" clearInput="true"></ion-input>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-label position="stacked">Password</ion-label>
+          <ion-input type="password" [(ngModel)]="password" clearInput="true"></ion-input>
+        </ion-item>
+
+        <ion-button expand="full" color="primary" (click)="login()">
+          <ion-icon name="log-in-outline" slot="start"></ion-icon>
+          <span>Login</span>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid> -->
+<ion-content [fullscreen]="true" no-margin no-padding class="ion-padding">
+
+  <div class="container">
+    <form (ngSubmit)="login()" [formGroup]="credentials">
+      <div class="input-group" *ngIf="credentials">
+        <!-- <ion-item>
+          <ion-input type="tel"  placeholder="+91 XXXXXXXXXX" formControlName="number"></ion-input>
+        </ion-item>
+        <div *ngIf="credentials.get('number')?.hasError('required') && credentials.get('number')?.touched" class="errors">
+          <span>Number is required</span>
+        </div>
+        <div *ngIf="credentials.get('number')?.hasError('pattern') && credentials.get('number')?.touched" class="errors">
+          <span>Number is invalid</span>
+        </div> -->
+
+        <ion-item>
+          <ion-input type="text"  placeholder="username" formControlName="username"></ion-input>
+        </ion-item>
+        <div *ngIf="credentials.get('username')?.hasError('required') && credentials.get('username')?.touched" class="errors">
+          <span>Username is required</span>
+        </div>
+        <div *ngIf="credentials.get('username')?.hasError('minlength') && credentials.get('username')?.touched" class="errors">
+          <span>Username is invalid min 6 letters</span>
+        </div>
+        
+        <ion-item>
+          <ion-input type="password" placeholder="Password" formControlName="password"></ion-input>
+        </ion-item>
+        <div *ngIf="credentials.get('password')?.hasError('required') && credentials.get('password')?.touched"
+          class="errors">
+          <span>Password is required</span>
+        </div>
+        <div *ngIf="credentials.get('password')?.hasError('minlength') && credentials.get('password')?.touched"
+          class="errors">
+          <span>Password needs to be 6 characters</span>
+        </div>
+      </div>
+
+      <ion-button type="submit" expand="block" [disabled]="!credentials.valid">Log in</ion-button>
+      <div style="display: flex;justify-content: space-between;">
+        <small>Don't have an account?</small>
+        <small><a href="./register">SignUp</a></small>
+      </div>
+    </form>
+  </div>
+
+</ion-content>
