@@ -6,7 +6,8 @@ import { SocketService, User } from 'src/app/socketservice/socket.service';
 import { ActivatedRoute } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { timeInterval } from 'rxjs';
-export interface MSG{
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+export interface MSG {
   from: string,
   text: string
 }
@@ -15,32 +16,33 @@ export interface MSG{
   templateUrl: './chatbox.page.html',
   styleUrls: ['./chatbox.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, HttpClientModule]
 })
 export class ChatboxPage implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  @Input() selectedUser: User | undefined;
+  @Input() selectedUser: any | undefined;
   toDetails: User | undefined;
-  messages:MSG[] = []
+  messages: MSG[] = []
   newMessage = ''
-  fromUser: any = 'Jaswanth';
+  fromUser: any = '';
   showChat = false;
-  constructor(private route: ActivatedRoute, private service: SocketService) { }
+  constructor(private route: ActivatedRoute, private service: SocketService, private http: HttpClient) {
+
+  }
   ngAfterViewInit(): void {
- 
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['selectedUser'] && changes['selectedUser'].currentValue) {
-      this.toDetails = this.selectedUser;
-      this.setSelectedUserData(this.toDetails);
+      this.setSelectedUserData(this.selectedUser);
       this.fromUser = this.getItemFromLocalStorage('username');
-      if(this.toDetails?.userId){
-      this.service.getConversation(this.fromUser, this.toDetails?.userId).subscribe((conversation: any[]) => {
-        // Handle conversation data
-      this.messages = conversation;
-        console.log('Conversation:', conversation);
-      });
-    }
+      if (this.selectedUser && this.selectedUser.username) {
+        const toUser = this.selectedUser.username
+        
+        this.service.getConversation(this.fromUser, toUser).subscribe((conversation: any[]) => {
+          // Handle conversation data
+          this.messages = conversation;
+        });
+      }
     }
   }
   ngOnInit() {
@@ -72,26 +74,26 @@ export class ChatboxPage implements OnInit, OnChanges, OnDestroy, AfterViewInit 
     const toUserDetails = this.getItemFromLocalStorage('selectedUser');
     if (toUserDetails && fromUserSocketId && this.fromUser != null || undefined) {
       const data = toUserDetails ? JSON.parse(toUserDetails) : null;
-      this.messages.push({from:this.fromUser,text:this.newMessage})
-      this.service.sendMessage(this.fromUser,data.userId,this.newMessage);
+      this.messages.push({ from: this.fromUser, text: this.newMessage })
+      this.service.sendMessage(this.fromUser, data.username, this.newMessage);
       // this.service.getConversation(this.fromUser,data.userId)
     }
-    
-  this.newMessage
+
+    this.newMessage
   }
 
   getMessageClass(message: any): string {
     return message === this.fromUser ? 'message-container sent' : 'message-container received';
   }
 
-  private setSelectedUserData(data: User | null | undefined) {
+  private setSelectedUserData(data: any | null | undefined) {
     if (data != null) {
-      this.SetItemToLocalStorage('selectedUser', { userId: data.userId, socketId: data.socketId })
+      this.SetItemToLocalStorage('selectedUser', { username: data.username, socketId: data.socketId })
       this.getConversation();
     }
     else {
       this.route.params.subscribe(params => {
-        this.SetItemToLocalStorage('selectedUser', { userId: params['userId'], socketId: params['socketId'] })
+        this.SetItemToLocalStorage('selectedUser', { username: params['userId'], socketId: params['socketId'] })
         this.getConversation();
       });
     }
@@ -105,8 +107,6 @@ export class ChatboxPage implements OnInit, OnChanges, OnDestroy, AfterViewInit 
       const data = toUserDetails ? JSON.parse(toUserDetails) : null;
     }
   }
-
-
 
   private SetItemToLocalStorage(key: any, values: any) {
     localStorage.setItem(key, JSON.stringify(values));

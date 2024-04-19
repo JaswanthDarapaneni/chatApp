@@ -38,3 +38,19 @@
   color: #999999;
   font-size: 12px;
 }
+
+.ionic_content {
+  padding-top: 56px; /* Adjust according to your header's height */
+  // padding-bottom: 56px; /* Adjust according to your footer's height */
+  overflow-y: scroll; /* Enable vertical scrolling */
+  height: calc(100vh - 112px); /* Calculate height of content area, minus header and footer height */
+}
+
+.footer-chat {
+  position: fixed;
+  bottom: 0px;
+  width: 62%;
+  padding-left: 10px;
+  padding-bottom: 10px;
+}
+

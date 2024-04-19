@@ -1,4 +1,5 @@
 import { Injectable, OnChanges, SimpleChanges } from '@angular/core';
+
 import { Socket } from 'ngx-socket-io';
 
 @Injectable({
@@ -6,10 +7,7 @@ import { Socket } from 'ngx-socket-io';
 })
 export class RoomService {
 
-    constructor(private socket: Socket) {
-
-    }
-
+    constructor(private socket: Socket,) {}
 
     sendMessage(senderId: string, receverId: string, text: string) {
         this.socket.emit('sendMessage', { senderId, receverId, text });
@@ -27,5 +25,9 @@ export class RoomService {
         this.socket.on('conversation', callback);
         this.socket.listeners('conversation');
     }
+
+    
+
+
 
 }

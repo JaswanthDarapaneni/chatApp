@@ -1,24 +1,49 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, OnChanges, SimpleChanges } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+import { Socket, SocketIoModule } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
 export interface User {
   userId: string;
   socketId: string;
 }
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SocketService implements OnChanges {
+  private uri = "http://localhost:3001/api";
 
-  constructor(private socket: Socket) { }
-  ngOnChanges(changes: SimpleChanges): void {
+  constructor(private socket: Socket, private http: HttpClient) { }
+  ngOnChanges(changes: SimpleChanges,): void {
 
   }
+  getConversationUser(username: any): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    return this.http.get(this.uri + '/user/getConversation', { headers: headers, params: { username: username } })
+  }
 
+  onSearch(search: any): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    return this.http.get(this.uri + '/user/findusers', { headers: headers, params: { search: search } })
+  }
   connect() {
+    const username = localStorage.getItem('username');
+    this.socket.ioSocket.io.opts.query = { username: username };
+    console.log(this.socket.ioSocket.id)
+    this.initCurrentUserListener();
     this.socket.connect();
   }
+  onConnect(callback: () => void): void {
+    this.socket.on('connect', callback);
+  }
   receiveMessage() { }
+
   disconnect() {
     this.socket.disconnect();
   }
@@ -28,14 +53,15 @@ export class SocketService implements OnChanges {
       localStorage.setItem('socketId', currentUser.socketId)
     });
   }
-  login(username: string) {
+
+  socketLogin(username: any) {
+    this.connect();
     this.socket.emit('login', username);
-    this.initCurrentUserListener()
+    this.initCurrentUserListener();
   }
 
   sendMessage(senderId: string, receverId: string, text: string) {
     this.socket.emit('sendMessage', { senderId, receverId, text });
-
   }
 
   getUserList() {
@@ -49,7 +75,7 @@ export class SocketService implements OnChanges {
   onGetCurrentUser(callback: (user: any) => void): void {
     this.socket.on('currentUser', callback);
   }
-  onGetUsers(callback: (users: any[]) => void): void {
+  onGetUsers(callback: (users: any) => void): void {
     this.socket.on('getUsers', callback);
   }
 

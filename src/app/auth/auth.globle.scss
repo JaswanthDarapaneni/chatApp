@@ -29,3 +29,48 @@ ion-item{
 ion-input{
 	font-size: 12px;
 }
+
+.custom-toast::part(message) {
+    font-style: italic;
+    text-align: center;
+  }
+
+  .custom-toast {
+    --background: #333; // Background color
+    --color: #fff; // Text color
+    --border-radius: 10px; // Border radius
+    --max-width: 70%; // Maximum width of the toast
+    --box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
+    --animation-duration: 1s;
+    
+
+    // Small screen styles
+    @media (max-width: 767px) {
+      --max-width: 90%; // Adjust max-width for small screens
+      --padding: 10px; // Padding for small screens
+      --font-size: 14px; // Font size for small screens
+    }
+    
+    // Large screen styles
+    @media (min-width: 768px) {
+      --padding: 20px; // Padding for large screens
+      --font-size: 16px; // Font size for large screens
+    }
+
+
+
+    animation-name: fade-in; // Name of the animation
+    animation-duration: var(--animation-duration); // Duration of the animation
+    animation-fill-mode: forwards; // Animation fill mode
+  
+    @keyframes fade-in {
+      from {
+        opacity: 0; // Start opacity
+      }
+      to {
+        opacity: 1; // End opacity
+      }
+    }
+  
+  }
+

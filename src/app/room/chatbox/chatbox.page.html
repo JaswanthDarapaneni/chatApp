@@ -1,27 +1,30 @@
-
 <ion-header>
   <ion-toolbar>
-    <ion-title >{{toDetails?.userId}}</ion-title>
+    <ion-title>{{selectedUser.username}}</ion-title>
   </ion-toolbar>
 </ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-list lines="none" >
-    <ion-item *ngFor="let message of messages" [ngClass]="getMessageClass(message)">
-      <ion-label class="message-content">
-        <div class="message-text">{{ message.text }}</div>
-        <div class="message-info">
-          <div class="message-sender">{{ message.from }}</div>
-          <!-- <div class="message-timestamp">{{ message.timestamp | date: 'mediumTime' }}</div> -->
-        </div>
-      </ion-label>
-    </ion-item>
-  </ion-list>
-
-  <ion-footer>
-    <ion-toolbar>
-      <ion-input placeholder="Type your message..." [(ngModel)]="newMessage" clearInput></ion-input>
-      <ion-button slot="end" (click)="sendMessage()">Send</ion-button>
-    </ion-toolbar>
-  </ion-footer>
+<ion-content [fullscreen]="false" class="ionic_content">
+  <div>
+    <div>
+    <ion-list lines="none">
+      <ion-item *ngFor="let message of messages" [ngClass]="getMessageClass(message)">
+        <ion-label class="message-content">
+          <div class="message-text">{{ message.text }}</div>
+          <div class="message-info">
+            <div class="message-sender">{{ message.from }}</div>
+            <!-- <div class="message-timestamp">{{ message.timestamp | date: 'mediumTime' }}</div> -->
+          </div>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+    </div>
+    <div class="footer-chat">
+      <ion-footer>
+        <ion-toolbar>
+          <ion-input placeholder="Type your message..." [(ngModel)]="newMessage" clearInput></ion-input>
+          <ion-button slot="end" (click)="sendMessage()">Send</ion-button>
+        </ion-toolbar>
+      </ion-footer>
+    </div>
+  </div>
 </ion-content>

@@ -1,0 +1,24 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Verification</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="ion-text-center">
+    <h1>Enter Verification Code</h1>
+    <p>Please enter the 6-digit verification code sent to your email.</p>
+
+    <!-- Form for entering verification code -->
+    <ion-item lines="full">
+      <ion-label position="floating">Verification Code</ion-label>
+      <ion-input type="text" [(ngModel)]="verificationCode" maxlength="6"></ion-input>
+    </ion-item>
+
+    <!-- Button to submit verification code -->
+    <ion-button expand="block" (click)="verifyUser()">Verify</ion-button>
+
+    <!-- Error message for displaying validation errors -->
+    <ion-text color="danger" *ngIf="validationError">{{ validationError }}</ion-text>
+  </div>
+</ion-content>

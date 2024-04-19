@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
-import { ChatPage } from '../chat/chat.page';
 import { SocketService, User } from '../socketservice/socket.service';
 import { HeaderPage } from './header/header.page';
 import { UsersPage } from './users/users.page';
@@ -16,22 +15,28 @@ import { SearchbarPage } from './searchbar/searchbar.page';
     templateUrl: 'room.page.html',
     styleUrls: ['room.page.scss'],
     standalone: true,
-    imports: [IonicModule, CommonModule, FormsModule, ChatPage, HeaderPage, UsersPage, ChatboxPage, SearchbarPage],
+    imports: [ IonicModule, CommonModule, FormsModule, HeaderPage, UsersPage, ChatboxPage],
     providers: []
 })
-export class RoomPage implements OnChanges{
-    public userList: User[] = []
+export class RoomPage implements OnChanges, OnInit {
+    public userList: any[] = [];
     public selectedUser!: User;
-    constructor(private service: SocketService) {
-        this.service.connect();
-        this.service.getUserList().subscribe((res: User[]) => {
-            this.userList = res;
-            this.userList = this.userList.filter((user) => user.userId !== localStorage.getItem('username'));
-            this.selectedUser = this.userList[0];
-            console.log(this.selectedUser)
-            
-        });
+    constructor(private service: SocketService,) { 
+        
     }
+    ngOnInit(): void {
+          this.service.onGetMessage((message) => {
+            // this.messages.push(message)
+            console.log(message)
+            // Handle incoming message
+          });
+        this.service.connect();
+        const username = localStorage.getItem('username')
+        this.service.getConversationUser(username).subscribe((r: any) => {
+            this.userList = r.user
+        })
+    }
+    handleRefresh(r: any) { }
     // getting datat from user page
     handleUserSelected(selectedUser: User) {
         this.selectedUser = selectedUser;

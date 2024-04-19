@@ -1,13 +1,21 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Register with us</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="verifyUser()">Verify account</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 <ion-content [fullscreen]="true" no-margin no-padding class="ion-padding">
 
   <div class="container">
     <form (ngSubmit)="register()" [formGroup]="credentials">
       <div class="input-group" *ngIf="credentials">
         <ion-item>
-          <ion-input type="text"  placeholder="Name" formControlName="fullname"></ion-input>
+          <ion-input type="text"  placeholder="username" formControlName="username"></ion-input>
         </ion-item>
-        <div *ngIf="credentials.get('fullname')?.hasError('required') && credentials.get('fullname')?.touched" class="errors">
-          <span>Name is required</span>
+        <div *ngIf="credentials.get('username')?.hasError('required') && credentials.get('username')?.touched" class="errors">
+          <span>Username is required</span>
         </div>
         
         <ion-item>

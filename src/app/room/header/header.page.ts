@@ -20,8 +20,10 @@ export class HeaderPage implements OnInit {
   ngOnInit() {
   }
   logOut(){
-    localStorage.clear();
     this.service.disconnect();
+    setTimeout(()=>{
+      localStorage.clear();
+    },1000)
     this.router.navigateByUrl('');
 
   }

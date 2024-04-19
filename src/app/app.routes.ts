@@ -1,5 +1,4 @@
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { ChatPage } from './chat/chat.page';
 import { NgModule } from '@angular/core';
 import { AuthGuard } from './authguards/AuthGuard';
 
@@ -9,21 +8,19 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     loadComponent: () => import('./room/room.page').then((m) => m.RoomPage),
     children: [
-      {
-        path: 'home',
-        canActivate: [AuthGuard],
-        loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
-      },
-      {
-        path: 'chat',
-        canActivate: [AuthGuard],
-        loadComponent: () => import('./chat/chat.page').then(m => m.ChatPage)
-      },
-      {
-        path: 'users',
-        canActivate: [AuthGuard],
-        loadComponent: () => import('./room/users/users.page').then( m => m.UsersPage)
-      },
+      // {
+      //   path: 'searchbar',
+      //   loadComponent: () => import('./room/searchbar/searchbar.page').then( m => m.SearchbarPage)
+      // },
+      // {
+      //   path: 'header',
+      //   loadComponent: () => import('./room/header/header.page').then( m => m.HeaderPage)
+      // },
+      // {
+      //   path: 'users',
+      //   canActivate: [AuthGuard],
+      //   loadComponent: () => import('./room/users/users.page').then( m => m.UsersPage)
+      // },
       {
         path: 'chatbox',
         canActivate: [AuthGuard],
@@ -44,13 +41,10 @@ export const routes: Routes = [
     path: 'register',
     loadComponent: () => import('./auth/register/register.page').then( m => m.RegisterPage)
   },
+
   {
-    path: 'header',
-    loadComponent: () => import('./room/header/header.page').then( m => m.HeaderPage)
-  },
-  {
-    path: 'searchbar',
-    loadComponent: () => import('./room/searchbar/searchbar.page').then( m => m.SearchbarPage)
+    path: 'verifyuser',
+    loadComponent: () => import('./auth/verifyuser/verifyuser.page').then( m => m.VerifyuserPage)
   },
   
   
