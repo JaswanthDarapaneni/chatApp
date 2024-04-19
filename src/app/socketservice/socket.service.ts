@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnChanges, SimpleChanges } from '@angular/core';
-import { Socket, SocketIoModule } from 'ngx-socket-io';
+import { Socket } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 export interface User {
   userId: string;
   socketId: string;
@@ -11,7 +12,7 @@ export interface User {
   providedIn: 'root',
 })
 export class SocketService implements OnChanges {
-  private uri = "http://localhost:3001/api";
+  private uri = environment.URI;
 
   constructor(private socket: Socket, private http: HttpClient) { }
   ngOnChanges(changes: SimpleChanges,): void {
@@ -33,8 +34,8 @@ export class SocketService implements OnChanges {
     return this.http.get(this.uri + '/user/findusers', { headers: headers, params: { search: search } })
   }
   connect() {
-    const username = localStorage.getItem('username');
-    this.socket.ioSocket.io.opts.query = { username: username };
+    const userId = localStorage.getItem('userId');
+    this.socket.ioSocket.io.opts.query = { userId: userId };
     console.log(this.socket.ioSocket.id)
     this.initCurrentUserListener();
     this.socket.connect();
@@ -54,9 +55,9 @@ export class SocketService implements OnChanges {
     });
   }
 
-  socketLogin(username: any) {
+  socketLogin(UserId: any) {
     this.connect();
-    this.socket.emit('login', username);
+    this.socket.emit('login', UserId);
     this.initCurrentUserListener();
   }
 
@@ -75,6 +76,7 @@ export class SocketService implements OnChanges {
   onGetCurrentUser(callback: (user: any) => void): void {
     this.socket.on('currentUser', callback);
   }
+  
   onGetUsers(callback: (users: any) => void): void {
     this.socket.on('getUsers', callback);
   }

@@ -89,24 +89,24 @@ export class ChatboxPage implements OnInit, OnChanges, OnDestroy, AfterViewInit 
   private setSelectedUserData(data: any | null | undefined) {
     if (data != null) {
       this.SetItemToLocalStorage('selectedUser', { username: data.username, socketId: data.socketId })
-      this.getConversation();
+      // this.getConversation();
     }
     else {
       this.route.params.subscribe(params => {
         this.SetItemToLocalStorage('selectedUser', { username: params['userId'], socketId: params['socketId'] })
-        this.getConversation();
+        // this.getConversation();
       });
     }
   }
 
-  private getConversation() {
-    this.fromUser = this.getItemFromLocalStorage('username');
-    const fromUserSocketId = this.getItemFromLocalStorage('socketId');
-    const toUserDetails = this.getItemFromLocalStorage('selectedUser');
-    if (toUserDetails && fromUserSocketId && this.fromUser != null || undefined) {
-      const data = toUserDetails ? JSON.parse(toUserDetails) : null;
-    }
-  }
+  // private getConversation() {
+  //   this.fromUser = this.getItemFromLocalStorage('username');
+  //   const fromUserSocketId = this.getItemFromLocalStorage('socketId');
+  //   const toUserDetails = this.getItemFromLocalStorage('selectedUser');
+  //   if (toUserDetails && fromUserSocketId && this.fromUser != null || undefined) {
+  //     const data = toUserDetails ? JSON.parse(toUserDetails) : null;
+  //   }
+  // }
 
   private SetItemToLocalStorage(key: any, values: any) {
     localStorage.setItem(key, JSON.stringify(values));

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { SocketService } from 'src/app/socketservice/socket.service';
+import { AuthService } from 'src/app/authguards/AuthService';
 
 
 @Component({
@@ -14,17 +15,18 @@ import { SocketService } from 'src/app/socketservice/socket.service';
   imports: [IonicModule, CommonModule, FormsModule]
 })
 export class HeaderPage implements OnInit {
- 
-  constructor(private router: Router, private service: SocketService) { }
+
+  constructor(private router: Router, private authService: AuthService) { }
 
   ngOnInit() {
   }
-  logOut(){
-    this.service.disconnect();
-    setTimeout(()=>{
-      localStorage.clear();
-    },1000)
-    this.router.navigateByUrl('');
+  async logOut() {
+    localStorage.clear();
+    const loading: HTMLIonLoadingElement = await this.authService.presentLoading();
+    setTimeout(() => {
+      this.authService.dismissLoading(loading)
+      this.router.navigateByUrl('');
+    }, 1000);
 
   }
 

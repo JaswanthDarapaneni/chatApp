@@ -2,15 +2,13 @@
 const User = require('../models/userModel');
 const Conversation = require('../models/conversationModel');
 
-
-
 const findOneUser = async (userId) => {
   return await User.findOne({ username: userId }).select(['username', 'verifed', 'socketId']);
 }
-
 const addUser = async (userId, socketId) => {
   try {
-    let user = await User.findOne({ username: userId });
+    let user = await User.findById(userId).select(['socketId']);;
+    console.log(user)
     if (user) {
       user.socketId = socketId;
       user.save();

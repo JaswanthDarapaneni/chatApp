@@ -30,7 +30,7 @@ export class RoomPage implements OnChanges, OnInit {
             console.log(message)
             // Handle incoming message
           });
-        this.service.connect();
+        // this.service.connect();
         const username = localStorage.getItem('username')
         this.service.getConversationUser(username).subscribe((r: any) => {
             this.userList = r.user

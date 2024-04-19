@@ -1,24 +1,21 @@
 const { Server } = require('socket.io');
-const { addUser, addMessage, findOneUser, getConversation } = require('../controllers/userhandler')
+const { addUser, addMessage, findOneUser, getConversation } = require('../controllers/socketController')
 
 const initiateSocket = (io) => {
     const server = new Server(io, { cors: { origin: ["http://localhost:8101"] } });
     server.setMaxListeners(2000);
 
     server.on('connection', async (socket) => {
-        const { username } = socket.handshake.query
-        addUser(username, socket.id);
-        const currentUser = { username, socketId: socket.id };
+        const { userId } = socket.handshake.query
+        addUser(userId, socket.id);
+        const currentUser = { userId, socketId: socket.id };
         socket.emit('currentUser', currentUser);
-        socket.on('login', async (username) => {
-            addUser(username, socket.id);
-            const currentUser = { username, socketId: socket.id };
+        socket.on('login', async (userId) => {
+            addUser(userId, socket.id);
+            const currentUser = { userId, socketId: socket.id };
             socket.emit('currentUser', currentUser);
         });
 
-        socket.on('findUser', async (findUser) => {
-            socket.emit('findUsers', await findOneUser(findUser));
-        })
         socket.on("sendMessage", async ({ senderId, receverId, text }) => {
             const user = await findOneUser(receverId);
             if (user) {

@@ -18,11 +18,12 @@ const verifyToken = (req, res, next) => {
   });
 };
 
+
 const sendVerificationEmail = async (req, res) => {
   try {
     const verificationToken = req.body.verificationToken;
 
-    if (verificationToken &&  config.email != req.body.email) {
+    if (verificationToken && config.email != req.body.email) {
       const emailconfig = {
         service: 'gmail',
         auth: {
@@ -45,7 +46,7 @@ const sendVerificationEmail = async (req, res) => {
         body: {
           name: `Hi ${req.body.username}`,
           intro: "Your OTP has arrived!\n\n",
-          intro:`Your OTP for account verification is:${verificationToken}"Please use this OTP to verify your account within 30 minutes.`,
+          intro: `Your OTP for account verification is:${verificationToken}"Please use this OTP to verify your account within 30 minutes.`,
           outro: "Your friends are waiting for you! Verify quickly."
         }
       };
@@ -60,7 +61,7 @@ const sendVerificationEmail = async (req, res) => {
       };
 
       await transporter.sendMail(message);
-      res.status(200).json({email:"Verification email sent successfully"});
+      res.status(200).json({ email: "Verification email sent successfully" });
     } else {
       res.status(400).send("Verification token is missing");
     }
