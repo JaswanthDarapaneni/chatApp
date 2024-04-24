@@ -5,7 +5,8 @@ const { onConnectSocket, onLogin, onDisconnect, onUserOnline, onGetConversation,
 
 const initiateSocket = (io) => {
     const server = new Server(io, { cors: { origin: [config.crossOrigin] } });
-    server.setMaxListeners(2000);
+
+  server.setMaxListeners(2000);
     server.on('connection', async (socket) => {
         const userId = await onConnectSocket(socket);
         socket.on('login', (userId) => onLogin(socket, userId));
