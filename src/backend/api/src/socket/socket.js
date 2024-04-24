@@ -1,49 +1,18 @@
 const { Server } = require('socket.io');
-const { addUser, addMessage, findOneUser, getConversation } = require('../controllers/userhandler')
+const config = require("../env/config");
+const { onConnectSocket, onLogin, onDisconnect, onUserOnline, onGetConversation, onSendMsg } = require('./socketfunctions')
+
 
 const initiateSocket = (io) => {
-    const server = new Server(io, { cors: { origin: ["http://localhost:8101"] } });
+    const server = new Server(io, { cors: { origin: [config.crossOrigin] } });
     server.setMaxListeners(2000);
-
     server.on('connection', async (socket) => {
-        const { username } = socket.handshake.query
-        addUser(username, socket.id);
-        const currentUser = { username, socketId: socket.id };
-        socket.emit('currentUser', currentUser);
-        socket.on('login', async (username) => {
-            addUser(username, socket.id);
-            const currentUser = { username, socketId: socket.id };
-            socket.emit('currentUser', currentUser);
-        });
-
-        socket.on('findUser', async (findUser) => {
-            socket.emit('findUsers', await findOneUser(findUser));
-        })
-        socket.on("sendMessage", async ({ senderId, receverId, text }) => {
-            const user = await findOneUser(receverId);
-            if (user) {
-                if (user.socketId) {
-                    addMessage(senderId, receverId, text);
-                    socket.to(user.socketId).emit("getMessage", { from: senderId, to: receverId, text: text });
-                } else {
-                    addMessage(senderId, receverId, text);
-                }
-            } else {
-                console.log('Recipient not found');
-                // Optionally handle recipient not found error
-            }
-        });
-        socket.on('getConversation', async ({ from, to }) => {
-            const conversation = await getConversation(from, to);
-            socket.emit('conversation', conversation);
-        });
-        
-        socket.on('disconnect', () => {
-            // console.log(socket.id)
-            console.log('disconnected')
-            // // removeUser(socket.id);
-            // // socket.emit("getUsers", getUser());
-        });
+        const userId = await onConnectSocket(socket);
+        socket.on('login', (userId) => onLogin(socket, userId));
+        socket.on('user-online', (userId) => onUserOnline(socket, userId));
+        socket.on('getConversation', ({ from, to }) => onGetConversation(socket, from, to));
+        socket.on('sendMessage', ({ senderId, receverId, text }) => onSendMsg(socket, senderId, receverId, text));
+        socket.on('disconnect', () => onDisconnect(userId));
     });
 }
 module.exports = initiateSocket;

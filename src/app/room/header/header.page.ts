@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { SocketService } from 'src/app/socketservice/socket.service';
+import { AuthService } from 'src/app/authguards/AuthService';
+import { RoomService } from '../room.service';
 
 
 @Component({
@@ -13,19 +15,17 @@ import { SocketService } from 'src/app/socketservice/socket.service';
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule]
 })
-export class HeaderPage implements OnInit {
- 
-  constructor(private router: Router, private service: SocketService) { }
+export class HeaderPage {
 
-  ngOnInit() {
+  constructor(private router: Router, private authService: AuthService, private roomService: RoomService) { }
+  async logOut() {
+    localStorage.clear();
+    const loading: HTMLIonLoadingElement = await this.authService.presentLoading();
+    this.roomService.onDestoyComponents = true;
+    setTimeout(() => {
+      this.authService.dismissLoading(loading)
+      this.router.navigateByUrl('');
+      this.roomService.disConnect();
+    }, 1000);
   }
-  logOut(){
-    this.service.disconnect();
-    setTimeout(()=>{
-      localStorage.clear();
-    },1000)
-    this.router.navigateByUrl('');
-
-  }
-
 }

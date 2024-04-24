@@ -66,7 +66,7 @@
       <ion-button type="submit" expand="block" [disabled]="!credentials.valid" >Log in</ion-button>
       <div style="display: flex;justify-content: space-between;">
         <small>Don't have an account?</small>
-        <small><a href="./register">SignUp</a></small>
+        <small><a (click)="navigateToUrl()">SignUp</a></small>
       </div>
     </form>
   </div>

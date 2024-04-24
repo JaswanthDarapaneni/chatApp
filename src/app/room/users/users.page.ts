@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { User } from 'src/app/socketservice/socket.service';
 import { IonicModule, NavController } from '@ionic/angular';
 import { SearchbarPage } from '../searchbar/searchbar.page';
+import { ClientUser, RoomService } from '../room.service';
+import { NavigationExtras } from '@angular/router';
 
 @Component({
   selector: 'app-users',
@@ -12,31 +13,42 @@ import { SearchbarPage } from '../searchbar/searchbar.page';
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule, SearchbarPage]
 })
-export class UsersPage implements OnInit, OnChanges {
-  @Input() Users: any[] = [];
+export class UsersPage implements OnDestroy, OnChanges {
+  @Input() Users: ClientUser[] = [];
   @Output() userSelected: EventEmitter<any> = new EventEmitter<any>();
-  userList: any[] = [];
+  userList: ClientUser[] = [];
 
-  constructor(private navCtrl: NavController) { }
+  constructor(private navCtrl: NavController, private roomService: RoomService) { }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['Users'] && changes['Users'].currentValue) {
       this.userList = this.Users
     }
   }
-  handleUserSelected(user: any) {
+  handleUserSelected(user: ClientUser) {
     this.navigateToChat(user);
     this.Users.push(user);
   }
 
-  navigateToChat(user: any) {
+  navigateToChat(user: ClientUser) {
     if (window.innerWidth < 768) {
-      this.navCtrl.navigateForward(['room/chatbox', { user }]);
+      this.SetItemToLocalStorage('selectedUser', { username: user.username, socketId: user.socketId, _id: user._id })
+      this.navCtrl.navigateForward(['/chatbox']);
     } else {
       this.userSelected.emit(user);
     }
   }
 
-  ngOnInit() {
+
+  private SetItemToLocalStorage(key: any, values: any) {
+    localStorage.setItem(key, JSON.stringify(values));
+  }
+
+  ngOnDestroy(): void {
+    if (this.roomService.onDestoyComponents) {
+      this.userList = [];
+      this.Users = [];
+    }
   }
 
 }

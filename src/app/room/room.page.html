@@ -6,7 +6,9 @@
     </div>
     <div class="userbar">
       <app-users [Users]="userList" (userSelected)="handleUserSelected($event)"></app-users>
+      <!-- <ion-router-outlet></ion-router-outlet> -->
     </div>
+
     <div class="chatbar">
       <ng-container *ngIf="selectedUser">
       <app-chatbox [selectedUser]='selectedUser'></app-chatbox>

@@ -1,26 +1,49 @@
 import { Injectable } from "@angular/core";
 import { SocketService } from "../socketservice/socket.service";
 import { LoadingController, ToastController } from "@ionic/angular";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
+import { environment } from "../../environments/environment"
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
+    private uri = environment.URI;
 
-    private uri = "http://localhost:3001/api"
     constructor(private http: HttpClient, private socketService: SocketService, private loading: LoadingController, private toastController: ToastController) { }
-    isLoggedIn() {
+
+    async isLoggedIn(): Promise<boolean> {
         const user = localStorage.getItem('username');
-        if (user) {
-            return true;
+        const token = localStorage.getItem('token');
+        if (user != null) {
+            if (token != null) {
+                if (await this.validateUserLogin()) {
+                    return true
+                }
+                return false;
+            }
+            return false;
         }
         return false;
     }
 
+    async validateUserLogin(): Promise<boolean> {
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+        this.http.get(`${this.uri}/auth/verifyToken`, { headers }).subscribe((r: any) => {
+            if (r.userId) {
+                localStorage.setItem('userId', r.userId)
+                this.socketService.socketLogin(r.userId);
+            }
+        })
+        return true;
+    }
+
     async userRegister(data: any): Promise<any> {
         try {
-            const response = await this.http.post<any>(`${this.uri}/user/register`, data).toPromise();
+            const response = await this.http.post<any>(`${this.uri}/auth/register`, data).toPromise();
             return response;
         } catch (error) {
             throw error; // Rethrow the error to propagate it back to the calling component
@@ -29,23 +52,21 @@ export class AuthService {
 
     async login(username: string, password: String): Promise<any> {
         try {
-            const response = await this.http.post<any>(this.uri + '/user/login', { username, password }).toPromise();
+            const response = await this.http.post<any>(`${this.uri}/auth/login`, { username, password }).toPromise();
             localStorage.setItem('token', response.token);
             localStorage.setItem('username', username);
-            this.socketService.socketLogin(username);
             return response;
         } catch (error: any) {
             return error;
         }
-
     }
 
 
     async verifyUser(otp: any): Promise<any> {
         try {
-            const responce = await this.http.post<any>(this.uri + '/user/verify-email', { token: otp }).toPromise();
+            const responce = await this.http.post<any>(`${this.uri}/auth/verify-email`, { token: otp }).toPromise();
             return responce;
-        } catch (error:any) {
+        } catch (error: any) {
             return error;
         }
     }

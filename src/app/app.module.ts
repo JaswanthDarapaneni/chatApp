@@ -6,7 +6,10 @@ import { AppComponent } from "./app.component";
 import { BrowserModule } from "@angular/platform-browser";
 import { AppRoutingModule } from "./app.routes";
 import { RouteReuseStrategy } from "@angular/router";
-import { AuthModule } from "./auth/auth.module";
+import { AuthGuard } from "./authguards/AuthGuard";
+import { AuthService } from "./authguards/AuthService";
+import { HttpClientModule } from "@angular/common/http";
+import { RoomService } from "./room/room.service";
 
 
 @NgModule({
@@ -15,11 +18,10 @@ import { AuthModule } from "./auth/auth.module";
         IonicModule.forRoot({scrollPadding: false, scrollAssist: false }),
         SocketIoModule.forRoot({url:'http://localhost:3001',options: {autoConnect:false,}}),
         AppRoutingModule,
-        AuthModule
-       
+        HttpClientModule
     ],
 
-    providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+    providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },AuthGuard],
     bootstrap: [AppComponent],
 })
 

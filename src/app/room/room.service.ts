@@ -1,33 +1,51 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, OnChanges, SimpleChanges } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 import { Socket } from 'ngx-socket-io';
-
+import { Observable } from 'rxjs';
+export interface ClientUser {
+  _id: string;
+  username: string;
+  socketId: string;
+}
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class RoomService {
+  public onDestoyComponents: boolean = false;
+  constructor(private socket: Socket, private http: HttpClient) {}
+ 
 
-    constructor(private socket: Socket,) {}
+  onNewUser(search: any): Observable<any> {
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    return this.http.get(`${environment.URI}/user/newUserCheck`, { headers: headers, params: { search: search } })
+  }
 
-    sendMessage(senderId: string, receverId: string, text: string) {
-        this.socket.emit('sendMessage', { senderId, receverId, text });
-    }
+  getPendingMsg(callback: (userId: any) => void): void {
+    console.log('im calling')
+    const userId = localStorage.getItem('userId');
+    this.socket.emit('user-online', userId);
+    // this.socket.on('pending-messages', (pendingMessages: any[]) => {
+    //   // Handle the pending messages received from the server
+    //   console.log('Pending messages:', pendingMessages);
+    // });
+      this.socket.on('pending-messages', callback);
+  }
 
-    getConversation(from: string, to: string) {
-        this.socket.emit('getConversation', { from, to });
-        return this.socket.fromEvent<any[]>('conversation');
-    }
-    onGetMessage(callback: (message: any) => void): void {
-        this.socket.on('getMessage', callback);
-    }
+  forSmallScreen(): boolean {
+    return window.innerWidth < 768;
+  }
+   
+  disConnect(){
+    this.socket.disconnect();
+  }
 
-    onConversation(callback: (conversation: any[]) => void): void {
-        this.socket.on('conversation', callback);
-        this.socket.listeners('conversation');
-    }
-
-    
-
-
+  SetItemToLocalStorage(key: any, values: any) {
+    localStorage.setItem(key, JSON.stringify(values));
+  }
 
 }
