@@ -3,8 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'src/app/authguards/AuthService';
-import { AuthModule } from '../auth.module';
 import { Router } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { AuthGuard } from 'src/app/authguards/AuthGuard';
+import { SocketService } from 'src/app/socketservice/socket.service';
 
 @Component({
   selector: 'app-register',
@@ -12,7 +14,8 @@ import { Router } from '@angular/router';
   styleUrls: ['../auth.globle.scss'],
   standalone: true,
   encapsulation: ViewEncapsulation.None,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule, AuthModule]
+  imports: [IonicModule, CommonModule, ReactiveFormsModule, HttpClientModule],
+  providers: [AuthService, SocketService, AuthGuard],
 })
 export class RegisterPage implements OnInit {
   credentials!: FormGroup;

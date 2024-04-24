@@ -2,16 +2,19 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { AuthModule } from '../auth.module';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from 'src/app/authguards/AuthService';
+import { AuthGuard } from 'src/app/authguards/AuthGuard';
+import { HttpClientModule } from '@angular/common/http';
+import { SocketService } from 'src/app/socketservice/socket.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['../auth.globle.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, AuthModule],
+  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
+  providers: [AuthService, SocketService, AuthGuard],
   // encapsulation: ViewEncapsulation.None  this very imp to use the presentToast(), the custom styles will apply only if it sen none.
   encapsulation: ViewEncapsulation.None
 })
@@ -40,7 +43,6 @@ export class LoginPage implements OnInit {
     });
   }
   login() {
-    
     setTimeout(async () => {
       if (this.credentials.valid) {
         const loading: HTMLIonLoadingElement = await this.authService.presentLoading();
@@ -48,6 +50,7 @@ export class LoginPage implements OnInit {
         responce.then(async (value) => {
           if (value.token) {
             this.responce = 'Login Successful ....';
+            this.authService.dismissLoading(loading);
             this.credentials.reset();
             this.authorizeUser();
           } else if (value.status === 404) {
@@ -64,9 +67,9 @@ export class LoginPage implements OnInit {
           setTimeout(async () => {
             if (this.responce != null) {
               await this.authService.presentToast(this.responce);
+              this.authService.dismissLoading(loading);
             }
-            this.authService.dismissLoading(loading);
-          }, 3000)
+          }, 2000)
         })
       }
     }, 1000);
@@ -75,7 +78,9 @@ export class LoginPage implements OnInit {
   private authorizeUser() {
     this.router.navigateByUrl('/room');
   }
-
+  navigateToUrl(){
+    this.router.navigateByUrl('/register');
+  }
   get username() {
     return this.credentials.get('username')?.value;
   }

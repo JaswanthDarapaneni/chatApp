@@ -1,10 +1,12 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthModule } from '../auth.module';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'src/app/authguards/AuthService';
 import { Router } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { AuthGuard } from 'src/app/authguards/AuthGuard';
+import { SocketService } from 'src/app/socketservice/socket.service';
 
 @Component({
   selector: 'app-verifyuser',
@@ -12,7 +14,8 @@ import { Router } from '@angular/router';
   styleUrls: ['../auth.globle.scss'],
   standalone: true,
   encapsulation: ViewEncapsulation.None,
-  imports: [IonicModule, AuthModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, HttpClientModule],
+  providers: [AuthService, SocketService, AuthGuard],
 })
 export class VerifyuserPage {
   verificationCode!: string;
