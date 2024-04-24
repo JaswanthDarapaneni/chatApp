@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, NavController } from '@ionic/angular';
 
-import { SocketService, User } from '../socketservice/socket.service';
+import { SocketService } from '../socketservice/socket.service';
 import { HeaderPage } from './header/header.page';
 import { UsersPage } from './users/users.page';
-import { ChatboxPage } from './chatbox/chatbox.page';
-import { SearchbarPage } from './searchbar/searchbar.page';
+import { ChatboxPage, MSG } from './chatbox/chatbox.page';
+import { ClientUser, RoomService } from './room.service';
+import { Router, RouterModule } from '@angular/router';
 
 
 @Component({
@@ -15,42 +16,62 @@ import { SearchbarPage } from './searchbar/searchbar.page';
     templateUrl: 'room.page.html',
     styleUrls: ['room.page.scss'],
     standalone: true,
-    imports: [ IonicModule, CommonModule, FormsModule, HeaderPage, UsersPage, ChatboxPage],
-    providers: []
+    imports: [IonicModule, CommonModule, FormsModule, HeaderPage, UsersPage, ChatboxPage, RouterModule],
+    providers: [RoomService]
 })
 export class RoomPage implements OnChanges, OnInit {
-    public userList: any[] = [];
-    public selectedUser!: User;
-    constructor(private service: SocketService,) { 
-        
+    public userList: ClientUser[] = [];
+    public selectedUser!: ClientUser;
+    constructor(
+        private service: SocketService,
+        private navCtrl: NavController,
+        private roomService: RoomService,
+        private router: Router) {
     }
-    ngOnInit(): void {
-          this.service.onGetMessage((message) => {
-            // this.messages.push(message)
-            console.log(message)
-            // Handle incoming message
-          });
-        // this.service.connect();
-        const username = localStorage.getItem('username')
-        this.service.getConversationUser(username).subscribe((r: any) => {
-            this.userList = r.user
+    async ngOnInit() {
+        console.log(this.service.getPending())
+
+        this.service.onGetMessage((message: MSG) => {
+            if (this.userList.length != 0) {
+                const user = this.userList.find((r) => { return r.username === message.from });
+                if (!user) {
+                    this.getNewUserMsg(message)
+                } else {
+                    console.log(user)
+                }
+            } else {
+                this.getNewUserMsg(message)
+            }
+
+        });
+        setTimeout(() => {
+            const username = localStorage.getItem('username');
+            if (username != null) {
+                this.service.getConversationUser(username).subscribe((r: any) => {
+                    this.userList = r.user
+                })
+            }
+        }, 1000)
+    }
+
+    private getNewUserMsg(message: MSG) {
+        console.log(message.from)
+        this.roomService.onNewUser(message.from).subscribe((res) => {
+            this.userList.push(res.user)
         })
     }
-    handleRefresh(r: any) { }
-    // getting datat from user page
-    handleUserSelected(selectedUser: User) {
+    // getting data from user page
+    handleUserSelected(selectedUser: ClientUser) {
         this.selectedUser = selectedUser;
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-
         if (changes['userList'] && changes['userList'].currentValue) {
-            this.service.getUserList().subscribe((res: User[]) => {
+            this.service.getUserList().subscribe((res: any[]) => {
                 this.userList = res;
-                this.userList = this.userList.filter((user) => user.userId !== localStorage.getItem('username'));
+                this.userList = this.userList.filter((user: ClientUser) => user.username !== localStorage.getItem('username'));
             });
         }
-
     }
 
 }

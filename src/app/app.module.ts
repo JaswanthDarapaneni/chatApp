@@ -9,6 +9,7 @@ import { RouteReuseStrategy } from "@angular/router";
 import { AuthGuard } from "./authguards/AuthGuard";
 import { AuthService } from "./authguards/AuthService";
 import { HttpClientModule } from "@angular/common/http";
+import { RoomService } from "./room/room.service";
 
 
 @NgModule({

@@ -56,7 +56,7 @@ const sendVerificationEmail = async (req, res) => {
       const message = {
         from: config.email,
         to: req.body.email,
-        subject: "OTP Verification Code for Chitchat",
+        subject: "OTP Verification Code from Chitchat",
         html: mail
       };
 

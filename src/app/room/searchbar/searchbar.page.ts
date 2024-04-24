@@ -25,14 +25,14 @@ export class SearchbarPage implements OnInit {
     const query = search.target.value;
     this.service.onSearch(query).subscribe((e) => {
       if (e.users != null) {
-       return this.results = e.users;
-      } 
+        return this.results = e.users;
+      }
       this.results = null;
     })
   }
-  sendDataToUserPage(user: any){
-      this.userSelected.emit(user);
-      this.results = null;
+  sendDataToUserPage(user: any) {
+    this.userSelected.emit(user);
+    this.results = null;
   }
 
 }

@@ -1,5 +1,4 @@
 const User = require('../models/userModel')
-const ActiveUser = require('../models/activeUserModel')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const config = require('../env/config');
@@ -23,10 +22,6 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ error: 'Invalid password' });
         }
         const token = jwt.sign({ userId: user._id }, config.secretKey);
-        if (token) {
-            const activeUser = new ActiveUser({ userId: username, status: true });
-            await activeUser.save();
-        }
         return res.status(200).json({ token });
     } catch (error) {
         console.log(error)

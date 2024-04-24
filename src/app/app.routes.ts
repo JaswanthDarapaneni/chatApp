@@ -14,11 +14,15 @@ export const routes: Routes = [
     children: [
       {
         path: 'chatbox',
-        canActivate: [AuthGuard],
         loadComponent: () => import('./room/chatbox/chatbox.page').then(m => m.ChatboxPage)
       },
     ]
   },
+  {
+    path: 'chatbox',
+    loadComponent: () => import('./room/chatbox/chatbox.page').then(m => m.ChatboxPage)
+  },
+
   {
     path: 'login',
     canActivate: [AuthGuardNegate],
@@ -42,6 +46,7 @@ export const routes: Routes = [
     component: LoginPage,
     pathMatch: 'full'
   },
+  
 
 ];
 @NgModule({

@@ -36,6 +36,27 @@ const getUserProfile = (req, res) => {
   res.json({ userId: req.body.userId });
 };
 
+const newUserCheck = async (req, res) => {
+  const { search } = req.query;
+  try {
+    if (search) {
+      console.log(search)
+      const user = await User.findOne({ username: search }).select(['socketId', 'username'])
+      console.log(user)
+      if (user) {
+        res.status(200).json({ user: user })
+      } else {
+        res.status(400).json({ user: null })
+      }
+    } else {
+      res.status(400).json({ error: 'Check params' })
+    }
+  }
+  catch (error) {
+    console.log(error)
+    res.status(400).json({ error: 'Something went wrong' })
+  }
+}
 
 const findManyUser = async (req, res) => {
   try {
@@ -62,6 +83,6 @@ const findManyUser = async (req, res) => {
 module.exports = {
   getUserProfile,
   userConversation,
-  findManyUser
-
+  findManyUser,
+  newUserCheck
 };

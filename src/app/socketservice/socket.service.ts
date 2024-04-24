@@ -35,16 +35,16 @@ export class SocketService implements OnChanges {
   }
   connect() {
     const userId = localStorage.getItem('userId');
-    this.socket.ioSocket.io.opts.query = { userId: userId };
-    console.log(this.socket.ioSocket.id)
-    this.initCurrentUserListener();
-    this.socket.connect();
+    if(userId != null){
+      this.socket.ioSocket.io.opts.query = { userId: userId };
+      // console.log(this.socket.ioSocket.id)
+      this.initCurrentUserListener();
+      this.socket.connect();
+    }
   }
   onConnect(callback: () => void): void {
     this.socket.on('connect', callback);
   }
-  receiveMessage() { }
-
   disconnect() {
     this.socket.disconnect();
   }
@@ -61,16 +61,13 @@ export class SocketService implements OnChanges {
     this.initCurrentUserListener();
   }
 
+
   sendMessage(senderId: string, receverId: string, text: string) {
     this.socket.emit('sendMessage', { senderId, receverId, text });
   }
 
   getUserList() {
     return this.socket.fromEvent<User[]>('getUsers');
-  }
-
-  listenForNewMessages() {
-    return this.socket.fromEvent<string>('newMessage');
   }
 
   onGetCurrentUser(callback: (user: any) => void): void {
@@ -85,9 +82,23 @@ export class SocketService implements OnChanges {
     this.socket.on('getMessage', callback);
   }
 
-  onConversation(callback: (conversation: any[]) => void): void {
-    this.socket.on('conversation', callback);
-    this.socket.listeners('conversation');
+  getPending(){
+    const userId = localStorage.getItem('userId');
+    this.socket.emit('user-online', userId);
+    this.socket.on('pending-messages', (pendingMessages: any[]) => {
+      // Handle the pending messages received from the server
+      console.log('Pending messages:', pendingMessages);
+    });
+  }
+
+  getPendingMsg(callback: (userId: any) => void): void {
+    // const userId = localStorage.getItem('userId');
+    // this.socket.emit('user-online', userId);
+    this.socket.on('pending-messages', (pendingMessages: any[]) => {
+      // Handle the pending messages received from the server
+      console.log('Pending messages:', pendingMessages);
+    });
+      // this.socket.on('pending-messages', callback);
   }
 
   getConversation(from: string, to: string) {
