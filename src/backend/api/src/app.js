@@ -1,4 +1,4 @@
-const {io, app, express, cors} = require('./server.config')
+const { io, app, express, cors } = require('./server.config')
 
 const { userRoutes } = require("./routes/userRoutes");
 const config = require("./env/config");
@@ -8,7 +8,7 @@ const initiateSocket = require('./socket/socket');
 app.use(express.json());
 
 // Adding cors config
-app.use(cors({origin:['http://localhost:8101']}))
+app.use(cors({ origin: config.url }))
 // connectingDatabse
 connectDb();
 initiateSocket(io);

@@ -1,8 +1,9 @@
 const { Server } = require('socket.io');
-const { addUser, addMessage, findOneUser, getConversation } = require('../controllers/userhandler')
+const { addUser, addMessage, findOneUser, getConversation } = require('../controllers/userhandler');
+const config = require('../env/config');
 
 const initiateSocket = (io) => {
-    const server = new Server(io, { cors: { origin: ["http://localhost:8101"] } });
+    const server = new Server(io, { cors: { origin: [config.url] } });
     server.setMaxListeners(2000);
 
     server.on('connection', async (socket) => {
