@@ -1,6 +1,9 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>{{selectedUser.username}}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{toUser}}</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content [fullscreen]="false" class="ionic_content" #content>

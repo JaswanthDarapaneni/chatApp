@@ -17,6 +17,7 @@ export class AuthGuardNegate implements CanActivate {
     if (user === null && token === null && localStorage.length === 0) {
       return true
     } else {
+      this.router.navigateByUrl('/dashBoard')
       return false
     }
   }

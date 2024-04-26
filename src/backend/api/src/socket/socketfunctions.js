@@ -1,4 +1,4 @@
-const { addUser, addActiveUser, RemovePendingMsg, RemoveActiveUser, findActiveOneUser, addMessage, findOneUser, getConversation, getPendingConversation, addPendingMsg } = require('../controllers/socketController')
+const { addUser, addActiveUser, getuserConversation, RemovePendingMsg, RemoveActiveUser, findActiveOneUser, addMessage, findOneUser, getConversation, getPendingConversation, addPendingMsg } = require('../controllers/socketController')
 
 
 const onConnectSocket = async (socket) => {
@@ -25,8 +25,9 @@ const onUserOnline = async (socket, userId) => {
         if (pendingMsg.length != 0) await RemovePendingMsg(userId);
     }, 2000)
 }
+
 const onGetConversation = async (socket, from, to) => {
-    const conversation = await getConversation(from, to);
+    const conversation = await getuserConversation(from, to);
     socket.emit('conversation', conversation);
 }
 const onSendMsg = async (socket, senderId, receverId, text) => {

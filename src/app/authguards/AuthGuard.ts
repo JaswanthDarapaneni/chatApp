@@ -12,6 +12,7 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(): Promise<boolean> {
     if (await this.authService.isLoggedIn()) {
+      // this.router.navigateByUrl('/dashBoard', { skipLocationChange: true })
       return true
     } else {
       return false

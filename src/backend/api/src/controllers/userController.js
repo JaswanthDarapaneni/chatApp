@@ -1,36 +1,129 @@
 const User = require('../models/userModel');
 const Conversation = require('../models/conversationModel')
 
+// const userConversation = async (req, res) => {
+//   const { username } = req.query;
+//   try {
+//     const conversations = await Conversation.find({
+//       $or: [{ from: username }, { to: username }],
+//       participants: username
+//     }).select('-messages');
+
+//     const combinedParticipants = conversations.reduce((acc, curr) => {
+//       acc.push(...curr.participants);
+//       return acc;
+//     }, []);
+//     const filteredParticipants = combinedParticipants.filter(participant => participant !== username);
+//     const fields = 'username socketId';
+//     User.findMany(filteredParticipants, fields)
+//       .then(users => {
+//         if (users) {
+//           return res.status(200).json({ user: users });
+//         } else {
+//           return res.status(200).json({ user: null });
+//         }
+//       })
+//       .catch(error => {
+//         res.status(500).json({ error: error })
+//       });
+
+//   } catch (error) {
+//     res.status(500).json({ error: error })
+//   }
+// }
+// const userConversation = async (req, res) => {
+//   const { username } = req.query;
+//   try {
+//     const conversations = await Conversation.find({
+//       $or: [{ from: username }, { to: username }],
+//       participants: username
+//     })
+
+//     // console.log(conversations)
+
+//     const combinedParticipants = conversations.reduce((acc, curr) => {
+//       acc.push(...curr.participants);
+//       return acc;
+//     }, []);
+//     const filteredParticipants = combinedParticipants.filter(participant => participant !== username);
+//     const fields = 'username socketId';
+//     User.findMany(filteredParticipants, fields)
+//       .then(users => {
+//         if (users) {
+//           users.map(user => {
+//             const userConversations = conversations.filter(conversation => {
+//               if (conversation.participants.includes(user.username)) {
+//                 console.log(' im calling')
+//                 return { user: user.username, conversation: conversation };
+//               }
+//             });
+//             console.log(userConversations)
+//           })
+
+
+//         } else {
+//           return res.status(200).json({ user: null });
+//         }
+//       })
+//       // User.findMany(filteredParticipants, fields)
+//       //   .then(users => {
+//       //     if (users) {
+//       //       const response = users.map(user => {
+//       //         const userConversations = conversations.filter(conversation => conversation.participants.includes(user.username));
+//       //         return { user: user, conversations: userConversations };
+//       //       });
+//       //       return res.status(200).json(response);
+//       //     } else {
+//       //       return res.status(200).json([]);
+//       //     }
+//       //   })
+//       .catch(error => {
+//         console.log(error)
+//         res.status(500).json({ error: error })
+//       });
+//   } catch (error) {
+//     res.status(500).json({ error: error });
+//   }
+// };
+
+
 const userConversation = async (req, res) => {
   const { username } = req.query;
   try {
     const conversations = await Conversation.find({
       $or: [{ from: username }, { to: username }],
       participants: username
-    }).select('-messages');
+    }).select('participants messages');
 
     const combinedParticipants = conversations.reduce((acc, curr) => {
       acc.push(...curr.participants);
       return acc;
     }, []);
-    const filteredParticipants = combinedParticipants.filter(participant => participant !== username);
-    const fields = 'username socketId';
-    User.findMany(filteredParticipants, fields)
-      .then(users => {
-        if (users) {
-          return res.status(200).json({ user: users });
+
+    const filteredParticipants = [...new Set(combinedParticipants)].filter(participant => participant !== username);
+
+    const users = await User.find({ username: { $in: filteredParticipants } }, 'username socketId');
+
+    const response = users.map(user => {
+      const userConversations = conversations.flatMap(conversation => {
+        if (conversation.participants.includes(user.username)) {
+          return conversation.messages;
         } else {
-          return res.status(200).json({ user: null });
+          return [];
         }
-      })
-      .catch(error => {
-        res.status(500).json({ error: error })
       });
 
+      const responce = { user: user, conversations: userConversations }
+
+      return responce;
+    });
+    res.status(200).json(response);
+
   } catch (error) {
-    res.status(500).json({ error: error })
+    res.status(500).json({ error: error });
   }
-}
+};
+
 
 const getUserProfile = (req, res) => {
   res.json({ userId: req.body.userId });

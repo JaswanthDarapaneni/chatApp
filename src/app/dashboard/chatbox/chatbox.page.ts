@@ -1,23 +1,21 @@
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
-import { SocketService, User } from 'src/app/socketservice/socket.service';
-import { ActivatedRoute } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
-import { timeInterval } from 'rxjs';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonInput, IonItem, IonLabel, IonList, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { SocketService } from 'src/app/socketservice/socket.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { ClientUser, RoomService } from '../room.service';
-export interface MSG {
-  from: string,
-  text: string
-}
+import { ClientUser, Message } from '../room/room.service';
+import { ChatBoxService } from './chatbox.service';
+
 @Component({
   selector: 'app-chatbox',
   templateUrl: './chatbox.page.html',
   styleUrls: ['./chatbox.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, HttpClientModule,],
+  providers: [ChatBoxService],
+  imports: [
+    IonBackButton, IonButtons,
+    IonInput, IonButton, IonHeader, IonFooter, IonItem, IonLabel, IonList, IonContent, IonTitle, IonToolbar, CommonModule, FormsModule, HttpClientModule],
   // encapsulation: ViewEncapsulation.None
 })
 export class ChatboxPage implements OnInit, OnChanges, OnDestroy, AfterViewInit {
@@ -25,79 +23,100 @@ export class ChatboxPage implements OnInit, OnChanges, OnDestroy, AfterViewInit 
   @Input() selectedUser: ClientUser = {
     _id: '',
     username: '',
-    socketId: ''
+    socketId: '',
   };
-  messages: MSG[] = []
+  messages: Message[] = []
   newMessage = ''
   fromUser: any = '';
+  toUser: any = ''
   showChat = false;
-  constructor(private route: ActivatedRoute, private service: SocketService, private http: HttpClient, private roomService: RoomService) {
+  constructor(
+    private service: SocketService,
+    private chatBoxService: ChatBoxService) {
+      console.log('im initiating form chatBOx')
+
+    this.initialize();
+  }
+
+  async initialize() {
     if (this.forSmallScreen()) {
       this.fromUser = this.getItemFromLocalStorage('username');
       const user: any = this.getItemFromLocalStorage('selectedUser') || null;
-      const data = user ? JSON.parse(user) : null;
-      this.selectedUser = data;
+      this.selectedUser = user ? JSON.parse(user) : null;
       if (this.selectedUser && this.selectedUser.username) {
-        const toUser = this.selectedUser.username;
-        this.service.getConversation(this.fromUser, toUser).subscribe((conversation: any[]) => {
-          // Handle conversation data
-          localStorage.setItem('conversationData', JSON.stringify(conversation));
-        });
+        this.toUser = this.selectedUser.username;
+        const chat = await this.chatBoxService.getData(this.toUser);
+        this.messages = chat ? chat : [];
       }
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+
+  async ngOnChanges(changes: SimpleChanges) {
     if (changes['selectedUser'] && changes['selectedUser'].currentValue) {
       this.fromUser = this.getItemFromLocalStorage('username');
       this.setSelectedUserData(this.selectedUser);
-      console.log(this.selectedUser)
       if (this.selectedUser && this.selectedUser.username) {
-        const toUser = this.selectedUser.username
-        this.service.getConversation(this.fromUser, toUser).subscribe((conversation: any[]) => {
-          // Handle conversation data
-          this.messages = conversation;
-        });
+        this.toUser = this.selectedUser.username;
+        const chat = await this.chatBoxService.getData(this.toUser);
+        this.messages = chat ? chat : [];
       }
     }
   }
   ngOnInit() {
-    this.service.onGetMessage((message) => {
-      if (this.selectedUser?.username === message.from) {
-        this.messages.push(message)
+    this.messages = [];
+    this.service.onGetMessage(async (message) => {
+      const isFromSelectedUser = this.toUser === message.from;
+      const chat = isFromSelectedUser ? await this.chatBoxService.getData(message.from) : null;
+      if (isFromSelectedUser) {
+        this.messages = chat ? [...chat, message] : [message];
+        this.messages.push(message);
+        this.chatBoxService.storeData(message.from, this.messages);
       } else {
         console.log(message + '' + 'im from notification')
       }
+      if (isFromSelectedUser) {
+        await this.chatBoxService.storeData(message.from, this.messages);
+      }
     });
-    // this.service.getMessage();
   }
   ngAfterViewInit() {
-    this.scrollToBottom();
-  }
-
-  scrollToBottom() {
-    try {
-      this.content.nativeElement.scrollTop = this.content.nativeElement.scrollHeight;
-    } catch(err) { }
   }
 
   forSmallScreen(): boolean {
     return window.innerWidth < 768;
   }
 
-  sendMessage() {
+  async sendMessage() {
     const fromUserSocketId = this.getItemFromLocalStorage('socketId');
     const toUserDetails = this.getItemFromLocalStorage('selectedUser');
     if (toUserDetails && fromUserSocketId && this.fromUser != null && this.fromUser !== undefined && this.newMessage.length !== 0) {
       const data = toUserDetails ? JSON.parse(toUserDetails) : null;
-      this.messages.push({ from: this.fromUser, text: this.newMessage })
+      this.messages = this.messages || [];
+      this.messages.push({
+        from: this.fromUser,
+        text: this.newMessage,
+        to: data.username,
+      });
+      let chatdata = await this.chatBoxService.getData(data.username)
+      let message = {
+        from: this.fromUser,
+        text: this.newMessage,
+        to: data.username,
+      }
+      if (chatdata) {
+        chatdata.push(message);
+        await this.chatBoxService.storeData(data.username, chatdata);
+      } else {
+        await this.chatBoxService.storeData(data.username, [message]);
+      }
       this.service.sendMessage(this.fromUser, data.username, this.newMessage);
       this.newMessage = '';
     }
-
   }
 
-  getMessageClass(message: MSG): string {
+
+  getMessageClass(message: Message): string {
     return message.from === this.fromUser ? 'sender-right' : 'sender-left';
   }
 
@@ -122,8 +141,9 @@ export class ChatboxPage implements OnInit, OnChanges, OnDestroy, AfterViewInit 
   }
 
   ngOnDestroy(): void {
-    if (this.roomService.onDestoyComponents) {
-      // this.messages = [];
+    this.messages = [];
+    if (this.chatBoxService.onDestoyComponents) {
+      this.messages = [];
     }
     this.removeFromLocalStorage();
   }

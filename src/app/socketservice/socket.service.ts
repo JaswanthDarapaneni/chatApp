@@ -1,23 +1,21 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnChanges, SimpleChanges } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+import { Socket, SocketIoConfig } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 export interface User {
   userId: string;
   socketId: string;
 }
-
 @Injectable({
   providedIn: 'root',
 })
-export class SocketService implements OnChanges {
+export class SocketService  {
   private uri = environment.URI;
-
-  constructor(private socket: Socket, private http: HttpClient) { }
-  ngOnChanges(changes: SimpleChanges,): void {
-
+  reload = true;
+  constructor(private socket: Socket, private http: HttpClient) {
   }
+
   getConversationUser(username: any): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = {
@@ -35,11 +33,12 @@ export class SocketService implements OnChanges {
   }
   connect() {
     const userId = localStorage.getItem('userId');
-    if(userId != null){
+
+    if (userId != null) {
       this.socket.ioSocket.io.opts.query = { userId: userId };
       // console.log(this.socket.ioSocket.id)
-      this.initCurrentUserListener();
       this.socket.connect();
+      this.initCurrentUserListener();
     }
   }
   onConnect(callback: () => void): void {
@@ -73,7 +72,7 @@ export class SocketService implements OnChanges {
   onGetCurrentUser(callback: (user: any) => void): void {
     this.socket.on('currentUser', callback);
   }
-  
+
   onGetUsers(callback: (users: any) => void): void {
     this.socket.on('getUsers', callback);
   }
@@ -82,23 +81,13 @@ export class SocketService implements OnChanges {
     this.socket.on('getMessage', callback);
   }
 
-  getPending(){
+  getPending() {
     const userId = localStorage.getItem('userId');
     this.socket.emit('user-online', userId);
     this.socket.on('pending-messages', (pendingMessages: any[]) => {
       // Handle the pending messages received from the server
       console.log('Pending messages:', pendingMessages);
     });
-  }
-
-  getPendingMsg(callback: (userId: any) => void): void {
-    // const userId = localStorage.getItem('userId');
-    // this.socket.emit('user-online', userId);
-    this.socket.on('pending-messages', (pendingMessages: any[]) => {
-      // Handle the pending messages received from the server
-      console.log('Pending messages:', pendingMessages);
-    });
-      // this.socket.on('pending-messages', callback);
   }
 
   getConversation(from: string, to: string) {

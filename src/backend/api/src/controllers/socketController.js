@@ -49,14 +49,24 @@ const addPendingMsg = async (userId, from, to, text) => {
     if (!userId || !from || !to || !text) {
       throw new Error('Missing required fields: "from", "to", or "text"');
     }
-
+    // const users = await User.findOne({ username: from }).select(['username', 'socketId']);
     let pendingConversation = await PendingConversation.findOne({ userId: userId });
     if (!pendingConversation) {
       pendingConversation = new PendingConversation({ userId, messages: [{ from, to, text }] });
+      // pendingConversation.user.push(users)
     } else {
+      // const userExists = pendingConversation.user.some(user => {
+      //   const userId = user._id.toString();
+      //   const usersId = users._id.toString();
+      //   return userId === usersId;
+      // });
+      // if (!userExists) {
+      //   pendingConversation.user.push(users)
+      // }
       pendingConversation.messages.push({ from, to, text });
     }
     await pendingConversation.save();
+
   } catch (error) {
     console.error('Error adding message to pendingConversation:', error);
     throw error;
@@ -65,7 +75,7 @@ const addPendingMsg = async (userId, from, to, text) => {
 const getPendingConversation = async (userId) => {
   try {
     const pendingConversation = await PendingConversation.findOne({ UserId: userId });
-    return pendingConversation ? pendingConversation.messages : [];
+    return pendingConversation ? pendingConversation : [];
   } catch (error) {
     console.error('Error retrieving conversation:', error);
     throw error;
@@ -101,6 +111,47 @@ const addMessage = async (from, to, text) => {
     throw error;
   }
 }
+
+const getuserConversation = async (from, to) => {
+  console.log(from)
+  try {
+    const conversations = await Conversation.find({
+      $or: [{ from: from }, { to: from }],
+      participants: from
+    }).select('participants messages');
+    if (conversations) {
+      const combinedParticipants = conversations.reduce((acc, curr) => {
+        acc.push(...curr.participants);
+        return acc;
+      }, []);
+
+      const filteredParticipants = [...new Set(combinedParticipants)].filter(participant => participant !== from);
+
+      const users = await User.find({ username: { $in: filteredParticipants } }, 'username socketId');
+
+      const response = users.map(user => {
+        const userConversations = conversations.flatMap(conversation => {
+          if (conversation.participants.includes(user.username)) {
+            return conversation.messages;
+          } else {
+            return [];
+          }
+        });
+
+        const responce = { user: user, conversations: userConversations }
+
+        return responce;
+      });
+      return response;
+    } else {
+      return null;
+    }
+    // res.status(200).json(response);
+  } catch (error) {
+    // res.status(500).json({ error: error });
+    console.error('Error retrieving conversation:', error);
+  }
+};
 const getConversation = async (from, to) => {
   try {
     const participants = [from, to].sort()
@@ -112,10 +163,10 @@ const getConversation = async (from, to) => {
   }
 }
 
-
 module.exports = {
   addUser,
   addActiveUser,
+  getuserConversation,
   RemoveActiveUser,
   RemovePendingMsg,
   addMessage,

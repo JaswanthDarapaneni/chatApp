@@ -1,9 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar, NavController } from '@ionic/angular/standalone';
-import { IonicModule } from '@ionic/angular';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { IonTabBar, IonLabel, NavController, IonList, IonItem, IonSearchbar, IonToolbar, IonHeader } from '@ionic/angular/standalone';
 import { SocketService } from 'src/app/socketservice/socket.service';
 
 @Component({
@@ -11,7 +9,7 @@ import { SocketService } from 'src/app/socketservice/socket.service';
   templateUrl: './searchbar.page.html',
   styleUrls: ['./searchbar.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonLabel,IonItem,IonSearchbar,IonToolbar,IonHeader, IonList, IonTabBar, CommonModule, FormsModule]
 })
 export class SearchbarPage implements OnInit {
   public results: any = [];

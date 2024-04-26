@@ -1,0 +1,33 @@
+<app-header (logout)="ngOnDestroy()"></app-header>
+
+<div *ngIf="initialize">
+  <ion-content class="ion-padding">
+    <div class="ion-page main" id="main-content">
+      <div class="sidebar">
+        <h1>hi</h1>
+      </div>
+      <div class="userbar">
+        <ng-container>
+          <app-users [Users]="userList" (userSelected)="handleUserSelected($event)"></app-users>
+        </ng-container>
+
+        <!-- <ion-list >
+        <ion-item *ngFor="let user of userList" >
+            <ion-avatar aria-hidden="true" slot="start">
+                (click)="navigateToChat(user)"
+                <img alt="" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+            </ion-avatar>
+            <ion-label> {{user.username}}</ion-label>
+        </ion-item>
+    </ion-list> -->
+
+      </div>
+
+      <div class="chatbar">
+        <ng-container *ngIf="selectedUser">
+          <app-chatbox [selectedUser]='selectedUser'></app-chatbox>
+        </ng-container>
+      </div>
+    </div>
+  </ion-content>
+</div>
