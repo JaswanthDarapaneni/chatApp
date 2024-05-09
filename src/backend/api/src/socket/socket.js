@@ -4,13 +4,15 @@ const { server } = require('../server.config')
 const { informFriendsMsgRecived, informUsers, onConnectSocket, onLogin, onDisconnect, onUserOnline, onGetConversation, RemovePendingMsg, onSendMsg } = require('./socketfunctions')
 
 const initiateSocket = (io) => {
+
     const server = new Server(io, {
         cors: { origin: [config.crossOrigin] },
-        pingInterval: 250000,
+        pingInterval: 25000,
         pingTimeout: 3000,
     });
-    server.setMaxListeners(2000);
-    server.on('connection', async (socket) => {
+    server.setMaxListeners(300000);
+
+  server.on('connection', async (socket) => {
         const userId = await onConnectSocket(socket);
         socket.on('login', (userId) => onLogin(socket, userId));
 

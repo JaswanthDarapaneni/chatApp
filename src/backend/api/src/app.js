@@ -11,6 +11,7 @@ const initiateSocket  = require('./socket/socket');
 app.use(express.json());
 
 // Adding cors config
+
 app.use(cors({ origin: [config.crossOrigin] }))
 // connectingDatabse
 connectDb();
