@@ -1,7 +1,7 @@
 {
-  "name": "chatApp",
+  "name": "chatNative",
   "version": "0.0.1",
-  "author": "Ionic Framework",
+  "author": "jaswanth",
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
@@ -21,7 +21,11 @@
     "@angular/platform-browser": "^17.0.2",
     "@angular/platform-browser-dynamic": "^17.0.2",
     "@angular/router": "^17.0.2",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/network": "^6.0.0",
     "@ionic/angular": "^7.5.0",
+    "@ionic/storage-angular": "^4.0.0",
     "ionicons": "^7.2.1",
     "ngx-socket-io": "^4.6.1",
     "rxjs": "~7.8.0",
@@ -56,5 +60,8 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.2.2"
   },
-  "description": "An Ionic project"
+  "description": "An Ionic project",
+  "main": "index.js",
+  "repository": "https://github.com/Jaswanthkrish1/chatApp.git",
+  "license": "MIT"
 }

@@ -15,10 +15,9 @@ const userSchema = new mongoose.Schema({
   username: { type: String },
   socketId: { type: String }
 });
-
 const dataSchema = new mongoose.Schema({
   sender: { type: userSchema },
-  messages: [messageSchema],
+  messages: [messageSchema]
 });
 
 
@@ -28,6 +27,6 @@ const conversationSchema = new mongoose.Schema({
 });
 
 
-const PendingConversation = mongoose.model('PendingConversation', conversationSchema);
+const OfflinePendingConversation = mongoose.model('OfflinePendingConversation', conversationSchema);
 
-module.exports = PendingConversation;
+module.exports = OfflinePendingConversation;

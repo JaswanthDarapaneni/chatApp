@@ -1,0 +1,25 @@
+<app-header (logout)="ngOnDestroy()"></app-header>
+
+<!-- <div *ngIf="initialize"> -->
+<ion-content class="ion-padding">
+  <div class="ion-page main" id="main-content">
+    <div class="sidebar">
+      <h1>hi</h1>
+    </div>
+    <div class="userbar">
+      <ng-container>
+        <app-users #userPageComponent [Users]="userList" [latestMSG]="latestMSG"
+          (userSelected)="handleUserSelected($event)"></app-users>
+      </ng-container>
+    </div>
+
+    <div class="chatbar">
+      <ng-container *ngIf="selectedUser">
+        <app-chatbox [selectedUser]='selectedUser' (messageSent)="handleMessageSent($event)"
+          #chatComponent></app-chatbox>
+      </ng-container>
+    </div>
+
+  </div>
+</ion-content>
+<!-- </div> -->

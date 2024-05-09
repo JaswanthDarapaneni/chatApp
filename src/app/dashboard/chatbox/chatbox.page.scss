@@ -39,21 +39,33 @@
 
 .ionic_content {
   padding-top: 56px; /* Adjust according to your header's height */
-  // padding-bottom: 56px; /* Adjust according to your footer's height */
-  overflow-y: scroll; /* Enable vertical scrolling */
-  height: calc(100vh - 170px); /* Calculate height of content area, minus header and footer height */
+  height: calc(100vh - 230px); /* Calculate height of content area, minus header and footer height */
+}
+@media only screen and (max-width: 767px) {
+  .footer-chat {
+    position: fixed;
+    bottom: 100px;
+    width: 62%;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    z-index: 1000;
+    width: 100%;
+  }
 }
 
 .footer-chat {
   position: fixed;
-  bottom: 0px;
+  bottom: 10px;
   width: 62%;
   padding-left: 10px;
-  padding-bottom: 10px;
+  padding-bottom: px;
+  z-index: 1000;
 }
-.list-md {
-  background: none;
-}
+
+
+// .list-md {
+//   background: none;
+// }
 
 .sender-right {
   text-align: right;

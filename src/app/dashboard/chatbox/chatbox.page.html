@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{toUser}}</ion-title>
+  </ion-toolbar>
+  <ion-button expand="block" (click)="scrollToBottom()">Scroll to Bottom</ion-button>
+</ion-header>
+<ion-content [fullscreen]="false" class="ionic_content" #content>
+  <div>
+    <div>
+      <ion-list lines="none">
+        <ion-item *ngFor="let message of messages; let i = index" [id]="'message-' + i"  [ngClass]="getMessageClass(message)">
+          <ion-label class="message-container">
+            <div class="message-text">{{ message.text }}</div>
+            <div class="message-info">{{ message.from }}</div>
+            <div class="message-status">
+              <div class="message-status" *ngIf="msgStatus">
+                <ion-icon *ngIf="!message.isSended " name="pending-icon"></ion-icon>
+                <ion-icon *ngIf="message.isSeen && !message.isRecived" name="checkmark-done-outline"></ion-icon>
+                <ion-icon *ngIf="message.isRecived && !message.isSeen" name="arrow-forward-outline"></ion-icon>
+                <ion-icon *ngIf="message.isSended && !message.isRecived && !message.isSeen" name="checkmark-outline"></ion-icon>
+              </div>
+            </div>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
+    <div class="footer-chat">
+      <ion-footer>
+        <ion-toolbar>
+          <ion-input fill="outline" label="Message" placeholder="Type your message..." [(ngModel)]="newMessage" clearInput></ion-input>
+          <ion-button slot="end" (click)="sendMessage()">Send</ion-button>
+        </ion-toolbar>
+      </ion-footer>
+    </div>
+  </div>
+</ion-content>
+

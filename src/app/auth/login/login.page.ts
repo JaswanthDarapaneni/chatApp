@@ -7,20 +7,21 @@ import { AuthService } from 'src/app/authguards/AuthService';
 import { AuthGuard } from 'src/app/authguards/AuthGuard';
 import { HttpClientModule } from '@angular/common/http';
 import { SocketService } from 'src/app/socketservice/socket.service';
+import { RoomService } from 'src/app/dashboard/room/room.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['../auth.globle.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule, HttpClientModule],
-  providers: [AuthService, SocketService, AuthGuard],
+  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
+  providers: [AuthService, SocketService, AuthGuard, RoomService],
   // encapsulation: ViewEncapsulation.None  this very imp to use the presentToast(), the custom styles will apply only if it sen none.
   encapsulation: ViewEncapsulation.None
 })
 export class LoginPage implements OnInit {
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) { }
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private roomService: RoomService) { }
   credentials!: FormGroup;
   numberPattern = /^\d{10}$/;
   responce: any;
@@ -50,9 +51,11 @@ export class LoginPage implements OnInit {
         responce.then(async (value) => {
           if (value.token) {
             this.responce = 'Login Successful ....';
-            this.authService.dismissLoading(loading);
             this.credentials.reset();
-            this.authorizeUser();
+            setTimeout(async () => {
+              this.authorizeUser();
+              location.reload();
+            }, 2000)
           } else if (value.status === 404) {
             this.responce = 'User not found';
             this.credentials.reset();
@@ -69,16 +72,16 @@ export class LoginPage implements OnInit {
               await this.authService.presentToast(this.responce);
               this.authService.dismissLoading(loading);
             }
-          }, 2000)
+          }, 3000)
         })
       }
     }, 1000);
   }
 
   private authorizeUser() {
-    this.router.navigateByUrl('/room');
+    this.router.navigateByUrl('/dashBoard', { skipLocationChange: true });
   }
-  navigateToUrl(){
+  navigateToUrl() {
     this.router.navigateByUrl('/register');
   }
   get username() {

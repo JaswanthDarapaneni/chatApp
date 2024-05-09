@@ -1,28 +1,15 @@
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
-import { NgModule } from '@angular/core';
+import { Routes } from '@angular/router';
 import { AuthGuard } from './authguards/AuthGuard';
 import { LoginPage } from './auth/login/login.page';
-import { AuthService } from './authguards/AuthService';
-import { SocketService } from './socketservice/socket.service';
 import { AuthGuardNegate } from './authguards/AuthGuardNegate';
 
-export const routes: Routes = [
+export const MainRoutes: Routes = [
   {
-    path: 'room',
+    path: 'dashBoard',
     canActivate: [AuthGuard],
-    loadComponent: () => import('./room/room.page').then((m) => m.RoomPage),
-    children: [
-      {
-        path: 'chatbox',
-        loadComponent: () => import('./room/chatbox/chatbox.page').then(m => m.ChatboxPage)
-      },
-    ]
+    loadChildren: () => import('./dashboard/room/room.routes').then((m) => m.roomRoutes)
   },
-  {
-    path: 'chatbox',
-    loadComponent: () => import('./room/chatbox/chatbox.page').then(m => m.ChatboxPage)
-  },
-
+  
   {
     path: 'login',
     canActivate: [AuthGuardNegate],
@@ -40,22 +27,15 @@ export const routes: Routes = [
     canActivate: [AuthGuardNegate],
     loadComponent: () => import('./auth/verifyuser/verifyuser.page').then(m => m.VerifyuserPage)
   },
+
   {
     path: '',
     canActivate: [AuthGuardNegate],
     component: LoginPage,
     pathMatch: 'full'
   },
-  
+
 
 ];
-@NgModule({
-  imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
 
-  ],
-  exports: [RouterModule],
-  providers: [AuthGuard]
-})
-export class AppRoutingModule { }
 
