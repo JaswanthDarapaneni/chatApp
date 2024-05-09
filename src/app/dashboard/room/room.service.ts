@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable, OnChanges, SimpleChanges } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
 import { Socket } from 'ngx-socket-io';
-import { Observable } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
 import { Storage } from '@ionic/storage-angular';
 import { SocketService } from '../../socketservice/socket.service';
 import { Router } from '@angular/router';
@@ -12,39 +12,66 @@ export interface ClientUser {
   _id?: string;
   username?: string;
   socketId?: string;
+  latestText?: string;
+  unreadCount: number;
+  UnreceivedMessages?: Messages[];
+  UnseenMessages?: Messages[];
+  UnsentMessages?: Messages[];
+}
+interface Messages {
+  uniqueId: string; // Assuming uniqueId is a string
+  isSended?: boolean;
+  isReceived?: boolean;
+  isSeen?: boolean;
 }
 export interface Message {
   text: string;
   from: string;
   to: string;
+  isSended?: boolean;
+  isRecived?: boolean;
+  isSeen?: boolean;
   timestamp?: Date;
 }
 export interface UserConversationResponse {
   user: ClientUser,
   conversations: Message[]
 }
-export interface UserWithConversation {
-  user: ClientUser[],
-  messages: Message[],
-  userId?: String[]
+
+export interface ConversationData {
+  sender: ClientUser;
+  messages: Message[];
 }
 
+export interface UserWithConversation {
+  receiverId?: String[],
+  data: ConversationData[]
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoomService {
+  checkUpdates(arg0: (data: any) => void) {
+    throw new Error('Method not implemented.');
+  }
   public onDestoyComponents: boolean = false;
   private loading!: HTMLIonLoadingElement;
+  userList: any[] = []
   constructor(
     private socket: Socket,
     private http: HttpClient,
     private storage: Storage,
     private socketservice: SocketService,
     private loadingController: LoadingController,
-    private route: Router,) {
+  ) {
     storage.create();
   }
+  disConnect() {
+    this.socket.disconnect();
+  };
+
+  // API
   onNewUser(search: any): Observable<any> {
     const token = localStorage.getItem('token');
     const headers = {
@@ -53,72 +80,30 @@ export class RoomService {
     return this.http.get(`${environment.URI}/user/newUserCheck`, { headers: headers, params: { search: search } })
   }
 
-  getPendingMsg(callback: (userId: any) => void): void {
-    const userId = localStorage.getItem('userId');
-    this.socket.emit('user-online', userId);
-    // this.socket.on('pending-messages', (pendingMessages: any[]) => {
-    //   // Handle the pending messages received from the server
-    //   console.log('Pending messages:', pendingMessages);
-    // });
-    this.socket.on('pending-messages', callback);
+  // Sockets
+
+  async informUsers(id: any, callback: (success: any) => void) {
+    try {
+      const ackResponse = await this.socket.timeout(10000).emitWithAck('inform_users_to_receive_msg', { id });
+      callback(ackResponse)
+      // callback(true, ackResponse); // Call the callback function with success status and response
+    } catch (e) {
+      console.log('im calling at informUser', e);
+      callback([]); // Call the callback function with failure status
+    }
   }
 
-  GetOfflineMsg() {
-    this.getPendingMsg(async (user: UserWithConversation) => {
-      console.log(user);
-      if (user.messages != undefined) {
-        for (const message of user.messages) {
-          const cacheConversation = await this.getData(message.from);
-          if (!cacheConversation) {
-            console.log(message)
-            await this.storeData(message.from, [message]);
-          } else {
-            cacheConversation.push(message)
-            await this.storeData(message.from, cacheConversation);
-          }
-        }
-
-        // // Check if userList is empty
-        // if (this.userList.length === 0) {
-        //     // If userList is empty, add all users to userList
-        //     for (const res of user.user) {
-        //         this.userList.push(res);
-        //     }
-        // } else {
-        //     // If userList is not empty, add only new users to userList
-        //     for (const res of user.user) {
-        //         let exists = false;
-        //         for (const r of this.userList) {
-        //             if (r.username === res.username) {
-        //                 exists = true;
-        //                 break;
-        //             }
-        //         }
-        //         if (!exists) {
-        //             this.userList.push(res);
-        //         }
-        //     }
-        // }
-      }
+  onGetMessage(callback: (message: any) => void): void {
+    this.socket.on('getMessage', (responce: any) => {
+      callback(responce);
     });
   }
 
-  forSmallScreen(): boolean {
-    return window.innerWidth < 768;
-  }
-
-  disConnect() {
-    this.socket.disconnect();
-  }
-
-  SetItemToLocalStorage(key: any, values: any) {
-    localStorage.setItem(key, JSON.stringify(values));
-  }
+  // optinal login calls dontlook to much on it
 
   async storeData(key: string, value: any): Promise<boolean> {
     try {
       await this.storage.set(key, value);
-      console.log('Data stored successfully!');
       return true; // Return true indicating successful storing
     } catch (error) {
       console.error('Error storing data:', error);
@@ -129,14 +114,31 @@ export class RoomService {
     const retrievedValue: any = await this.storage.get(key);
     return retrievedValue
   }
-  async getAllUserDetails() {
-    const users = await this.storage.keys();
-    return users;
+  async getAllKeys(): Promise<ClientUser[]> {
+    try {
+      const keys = await this.storage.keys();
+      const parsedKeys: ClientUser[] = keys.map(key => this.parseKeyToObject(key));
+      return parsedKeys;
+    } catch (error) {
+      console.error('Error retrieving keys:', error);
+      return [];
+    }
   }
-  async addAllUsers(key: string, value: any) {
+
+
+  // for converting into objects
+  private parseKeyToObject(key: string): any {
+    const user: any = {} as any;
+    const pairs = key.split(',');
+    pairs.forEach(pair => {
+      const [prop, value] = pair.split(':');
+      user[prop] = value;
+    });
+    return user;
+  }
+  async addAllUsers(key: any, value: any) {
     try {
       await this.storage.set(key, value);
-      console.log('Data stored successfully!');
     } catch (error) {
       console.error('Error storing data:', error);
     }
@@ -145,44 +147,8 @@ export class RoomService {
   async destroyeIndexDb() {
     await this.storage.clear();
   }
-  loadConversation(): Promise<boolean> {
-    return this.callConversation()
-  }
-  private async callConversation(): Promise<boolean> {
-    const username = localStorage.getItem('username');
-    if (!username) {
-      return false;
-    }
-    const response = await this.socketservice.getConversationUser(username).toPromise();
-    if (response) {
-      for (const item of response) {
-        const user = item.user;
-        const conversations = item.conversations;
-        if (user) {
-          const storedUsers = await this.getAllUserDetails();
-          const userExists = storedUsers.includes(user.username);
 
-          if (!userExists) {
-            this.addUserToList(user);
-          }
-        }
-        if (user && conversations) {
-          const storedSuccessfully = await this.storeData(username, conversations);
-          if (!storedSuccessfully) {
-            return false;
-          }
-        }
-      }
-      return true
-    } else {
-      return false
-    }
-  }
-
-  private addUserToList(user: ClientUser) {
-    // this.userList.push(user);
-  }
-
+  //  Normal rooms calls
   async presentLoading() {
     this.loading = await this.loadingController.create({
       message: 'Loading...'
@@ -194,5 +160,63 @@ export class RoomService {
     if (this.loading) {
       await this.loading.dismiss();
     }
+  }
+
+  forSmallScreen(): boolean {
+    return window.innerWidth < 768;
+  }
+
+  SetItemToLocalStorage(key: any, values: any) {
+    localStorage.setItem(key, JSON.stringify(values));
+  }
+  // Auth calls when login
+  loadConversation(): Promise<boolean> {
+    console.log('im for conversation')
+    return this.callConversation();
+  }
+  private async callConversation(): Promise<boolean> {
+    const username = localStorage.getItem('username');
+    if (!username) {
+      return false;
+    }
+    const response = await this.socketservice.getConversationUser(username).toPromise();
+
+    if (!response) {
+      return false;
+    }
+
+    for (const item of response) {
+      const user = item.user;
+      const conversations = item.conversations;
+      if (!user) {
+        continue;
+      }
+
+      // Construct the key
+      const key = `_id:${user._id},username:${user.username}`;
+
+      // Check if user already exists
+      const userExists = await this.userExists(key);
+      if (!userExists) {
+        this.addUserToList(user);
+      }
+
+      // Store conversations
+      const storedSuccessfully = await this.storeData(key, conversations);
+      if (!storedSuccessfully) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private async userExists(key: string): Promise<boolean> {
+    const storedKeys: string[] = await this.storage.get(key);
+    if (storedKeys === null) return true;
+    return true
+  }
+
+  private addUserToList(user: ClientUser) {
+    this.userList.push(user);
   }
 }

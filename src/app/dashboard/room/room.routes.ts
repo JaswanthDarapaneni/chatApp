@@ -12,6 +12,11 @@ export const roomRoutes: Routes = [
       import('../chatbox/chatbox.page').then((m) => m.ChatboxPage),
   },
   {
+    path: 'mobchatbox',
+    loadComponent: () =>
+      import('../mobchat/mobchat.page').then((m) => m.MobchatPage),
+  },
+  {
     path: '',
     redirectTo: '',
     pathMatch: 'full',

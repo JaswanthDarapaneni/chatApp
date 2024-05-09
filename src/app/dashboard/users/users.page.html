@@ -1,12 +1,14 @@
-
-<app-searchbar  (userSelected)="handleUserSelected($event)"></app-searchbar>
+<app-searchbar (userSelected)="handleUserSelected($event)"></app-searchbar>
 <ion-list *ngIf="Users.length > 0">
-  <ion-item *ngFor="let user of userList" (click)="navigateToChat(user)" >
+  <ion-item *ngFor="let user of userList" (click)="navigateToChat(user)">
     <ion-avatar aria-hidden="true" slot="start">
       <!-- (click)="navigateToChat(user)" -->
       <img alt="" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
     </ion-avatar>
-    <ion-label > {{user.username}}</ion-label>
+    <ion-label> {{user.username}}
+      <small [ngClass]="{'received-message': setFlag, 'sent-message': !setFlag}">
+        {{user.latestText}}</small>
+    </ion-label>
+    <ion-badge slot="end" *ngIf="user?.unreadCount" >{{user?.unreadCount}}</ion-badge>
   </ion-item>
 </ion-list>
-

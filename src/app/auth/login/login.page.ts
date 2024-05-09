@@ -53,13 +53,8 @@ export class LoginPage implements OnInit {
             this.responce = 'Login Successful ....';
             this.credentials.reset();
             setTimeout(async () => {
-              const status = await this.roomService.loadConversation();
-              if(status){
               this.authorizeUser();
-              this.authService.dismissLoading(loading);
-              }else{
-                console.log('something went wrong when loding conversation')
-              }
+              location.reload();
             }, 2000)
           } else if (value.status === 404) {
             this.responce = 'User not found';
@@ -77,7 +72,7 @@ export class LoginPage implements OnInit {
               await this.authService.presentToast(this.responce);
               this.authService.dismissLoading(loading);
             }
-          }, 2000)
+          }, 3000)
         })
       }
     }, 1000);

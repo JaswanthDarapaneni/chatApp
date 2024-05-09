@@ -1,5 +1,12 @@
 const User = require('../models/userModel');
 const Conversation = require('../models/conversationModel')
+const ActiveUser = require('../models/activeUserModel')
+const OfflinePendingConversation = require('../models/offlineConversationModel')
+const pendingConversation = require('../models/pendingConversationModel')
+const ReceivedSeenStatus = require('../models/receivedSeenStatusModel')
+
+
+
 
 // const userConversation = async (req, res) => {
 //   const { username } = req.query;
@@ -173,9 +180,155 @@ const findManyUser = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+// *************************************** //
+const findOneUser = async (userId) => {
+  return await User.findOne({ username: userId }).select(['username', 'verifed', 'socketId']);
+}
+
+
+// **** adding OfflineMsg **** //
+
+const addOfflineMsg = async (req, res) => {
+  try {
+    const { messages } = req.query;
+    const pendingMsgList = JSON.parse(messages);
+
+    if (!messages || !Array.isArray(pendingMsgList)) {
+      return res.status(400).json({ error: 'Required fields not found or invalid format', code: 400 });
+    }
+
+    for (const message of pendingMsgList) {
+      await processOfflineMessage(message);
+    }
+
+    const uniqueIds = new Set();
+    pendingMsgList.forEach(async (item) => uniqueIds.add(item.key._id));
+    const ids = Array.from(uniqueIds);
+    return res.status(200).json({ message: 'Offline pending messages added successfully', code: 200, ids: ids });
+  } catch (error) {
+    console.error('Error adding offline messages:', error);
+    return res.status(500).json({ error: 'Internal server error', code: 500 });
+  }
+}
+
+const processOfflineMessage = async (message) => {
+  const sender = await findOneUser(message.from);
+  const receiver = await findOneUser(message.to);
+
+  if (!sender || !receiver) {
+    throw new Error('Sender or receiver not found');
+  }
+
+  let offlineUserData = await OfflinePendingConversation.findOne({ receiverId: receiver._id });
+
+  if (!offlineUserData) {
+    offlineUserData = new OfflinePendingConversation({
+      receiverId: receiver._id,
+      data: [{ sender: sender, messages: [message] }]
+    });
+  } else {
+    const existingSender = offlineUserData.data.find(item => item.sender?.username === sender.username);
+    if (existingSender) {
+      existingSender.messages.push(message);
+    } else {
+      offlineUserData.data.push({ sender: sender, messages: [message] });
+    }
+  }
+
+  await offlineUserData.save();
+}
+
+const getMessages = async (req, res) => {
+  const { id } = req.query;
+  if (!id) return res.status(400).json({ message: 'UserId not found' });
+  try {
+    const offlineUserData = await OfflinePendingConversation.findOneAndUpdate(
+      { receiverId: id },
+      { $set: { 'data.$[].messages': [] } },
+      { returnDocument: 'before' }
+    );
+
+    if (!offlineUserData) {
+      return res.status(404).json({ message: 'Offline conversation data not found for the user', id });
+    }
+
+    if (offlineUserData.data[0].messages.length !== 0) {
+      await updateTrakingOfMsg(offlineUserData, id);
+      return res.status(200).json({ message: 'Messages cleared successfully', data: offlineUserData });
+    } else {
+      return res.status(200).json({ message: 'Messages cleared successfully', data: null });
+    }
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Internal server error', code: 500 });
+  }
+}
+
+const getPendingMessages = async (req, res) => {
+  const { id } = req.query;
+  if (!id) return res.status(400).json({ message: 'UserId not found' });
+  try {
+    const offlineUserData = await pendingConversation.findOneAndUpdate(
+      { receiverId: id },
+      { $set: { 'data.$[].messages': [] } },
+      { returnDocument: 'before' }
+    );
+    if (!offlineUserData) {
+      return res.status(404).json({ message: 'Pending conversation data not found for the user', id });
+    }
+    if (offlineUserData.data) {
+      await updateTrakingOfMsg(offlineUserData, id);
+      return res.status(200).json({ message: 'Messages cleared successfully', data: offlineUserData });
+    } else {
+      return res.status(200).json({ message: 'Messages cleared successfully', data: null });
+    }
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({ message: 'Internal server error', code: 500 });
+  }
+}
+
+const updateTrakingOfMsg = async (data, id) => {
+  for (const item of data.data) {
+    const { sender, messages } = item;
+    const senderId = sender._id;
+
+    const uniqueIds = messages.map((message) => message.uniqueId);
+    const existingDocument = await ReceivedSeenStatus.findOne({ userId: sender._id });
+    if (existingDocument) {
+      const reciverExists = existingDocument.traking.some(traking => traking.reciver_id.toString() === id.toString());
+      if (reciverExists) {
+        await ReceivedSeenStatus.findOneAndUpdate(
+          { userId: senderId, 'traking.reciver_id': id, 'traking.sender_id': senderId },
+          { $set: { 'traking.$.unique': uniqueIds, 'traking.$.last_seen': new Date().toISOString() } },
+          { upsert: true }
+        );
+      } else {
+        await ReceivedSeenStatus.findOneAndUpdate(
+          { userId: senderId },
+          { $push: { 'traking': { reciver_id: id, sender_id: senderId, unique: uniqueIds, last_seen: new Date().toISOString() } } },
+          { upsert: true }
+        );
+      }
+    } else {
+      await ReceivedSeenStatus.findOneAndUpdate(
+        { userId: senderId },
+        { $push: { 'traking': { reciver_id: id, sender_id: senderId, unique: uniqueIds, last_seen: new Date().toISOString() } } },
+        { upsert: true }
+      );
+    }
+  }
+}
+
+
+// *************************************** //
 module.exports = {
   getUserProfile,
   userConversation,
   findManyUser,
-  newUserCheck
+  newUserCheck,
+  addOfflineMsg,
+  getMessages,
+  getPendingMessages
 };

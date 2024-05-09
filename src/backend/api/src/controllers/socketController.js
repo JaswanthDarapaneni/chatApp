@@ -4,10 +4,17 @@ const ActiveUser = require('../models/activeUserModel');
 const Conversation = require('../models/conversationModel');
 const PendingConversation = require('../models/pendingConversationModel');
 
+const AsyncLock = require('async-lock');
 
 const findOneUser = async (userId) => {
   return await User.findOne({ username: userId }).select(['username', 'verifed', 'socketId']);
 }
+const findOneSocketIdForUser = async (userId) => {
+  return ActiveUser.findOne({ userId: userId, status: true });
+}
+const findManyActiveUsers = async (userIds) => {
+  return ActiveUser.find({ userId: { $in: userIds }, status: true });
+};
 const findActiveOneUser = async (userId) => {
   const activeUser = await ActiveUser.findOne({ userId: userId, status: true })
   if (!activeUser) return false;
@@ -24,6 +31,9 @@ const addActiveUser = async (userId, socketId) => {
   }
   await exitingUser.save();
 }
+const GetActiveAllUser = async () => {
+  return await ActiveUser.find({ status: true });
+}
 const RemoveActiveUser = async (userId) => {
   let exitingUser = await ActiveUser.findOne({ userId: userId, status: true });
   if (exitingUser) {
@@ -31,6 +41,8 @@ const RemoveActiveUser = async (userId) => {
     await exitingUser.save();
   }
 }
+
+
 const addUser = async (userId, socketId) => {
   try {
     let user = await User.findById(userId).select(['socketId']);;
@@ -44,68 +56,94 @@ const addUser = async (userId, socketId) => {
   }
 
 }
-const addPendingMsg = async (userId, from, to, text) => {
-  try {
-    if (!userId || !from || !to || !text) {
-      throw new Error('Missing required fields: "from", "to", or "text"');
-    }
-    // const users = await User.findOne({ username: from }).select(['username', 'socketId']);
-    let pendingConversation = await PendingConversation.findOne({ userId: userId });
-    if (!pendingConversation) {
-      pendingConversation = new PendingConversation({ userId, messages: [{ from, to, text }] });
-      // pendingConversation.user.push(users)
-    } else {
-      // const userExists = pendingConversation.user.some(user => {
-      //   const userId = user._id.toString();
-      //   const usersId = users._id.toString();
-      //   return userId === usersId;
-      // });
-      // if (!userExists) {
-      //   pendingConversation.user.push(users)
-      // }
-      pendingConversation.messages.push({ from, to, text });
-    }
-    await pendingConversation.save();
 
+const addPendingMsg = async (sender, receiver, receiverId, message) => {
+  const lock = new AsyncLock();
+  try {
+    // Check for missing required fields
+    if (!sender || !receiver || !receiverId || !message || !message.from || !message.to || !message.text || !message.uniqueId) {
+      throw new Error('Missing required fields: "sender", "receiver", "receiverId", "from", "to", or "text"');
+    }
+
+    await lock.acquire(receiverId, async () => {
+      // Find or create pending conversation
+      let pendingConversation = await PendingConversation.findOne({ receiverId: receiverId });
+      if (!pendingConversation) {
+        pendingConversation = new PendingConversation({
+          receiverId: receiverId,
+          data: [{ sender: sender, messages: [message] }]
+        });
+      } else {
+        // Check if sender already exists in pending conversation
+        const existingSender = pendingConversation.data.find(item => item.sender.username === message.from);
+        if (existingSender) {
+          existingSender.messages.push(message);
+        } else {
+          pendingConversation.data.push({ sender: sender, messages: [message] });
+        }
+      }
+
+      // Save pending conversation
+      await pendingConversation.save();
+    })
   } catch (error) {
     console.error('Error adding message to pendingConversation:', error);
     throw error;
   }
 }
+
+
 const getPendingConversation = async (userId) => {
   try {
-    const pendingConversation = await PendingConversation.findOne({ UserId: userId });
+    const pendingConversation = await PendingConversation.findOne({ receiverId: userId });
     return pendingConversation ? pendingConversation : [];
   } catch (error) {
     console.error('Error retrieving conversation:', error);
     throw error;
   }
 }
+
 const RemovePendingMsg = async (userId) => {
-  let exitingUser = await PendingConversation.findOneAndDelete({ userId: userId });
-  if (exitingUser) console.log(' Pending msg deleted')
-  else console.log('pending msg id not deleted someting wrong')
+  setTimeout(async () => {
+    try {
+      const result = await PendingConversation.findOneAndUpdate(
+        { receiverId: userId },
+        { $set: { 'data.$[].messages': [] } },
+        { returnDocument: 'before' }
+      );
+      if (result) {
+        console.log('Pending msg data removed successfully');
+      } else {
+        console.log('No pending msg data found for the user');
+      }
+    } catch (error) {
+      console.error('Error removing pending msg data:', error);
+    }
+  }, 2000);
 }
 
-const addMessage = async (from, to, text) => {
+const addMessage = async (message) => {
   try {
-
-    if (!from || !to || !text) {
+    // Validate the message object
+    if (!message || !message.from || !message.to || !message.text) {
       throw new Error('Missing required fields: "from", "to", or "text"');
     }
 
-    const participants = [from, to].sort();
+    const participants = [message.from, message.to].sort();
     let conversation = await Conversation.findOne({ participants });
-    // console.log(conversation)
     if (!conversation) {
       // If conversation doesn't exist, create a new one
-      conversation = new Conversation({ participants, messages: [{ from, to, text }] });
+      conversation = new Conversation({
+        participants: participants, messages: [message]
+      });
+
     } else {
-      conversation.messages.push({ from, to, text });
+      conversation.messages.push(message);
     }
+
     await conversation.save();
-    // console.log('Message added to conversation:', conversation);
-    return conversation;
+    const addedMessage = conversation.messages[conversation.messages.length - 1]; // Get the last added message
+    return addedMessage;
   } catch (error) {
     console.error('Error adding message to conversation:', error);
     throw error;
@@ -113,7 +151,6 @@ const addMessage = async (from, to, text) => {
 }
 
 const getuserConversation = async (from, to) => {
-  console.log(from)
   try {
     const conversations = await Conversation.find({
       $or: [{ from: from }, { to: from }],
@@ -163,9 +200,11 @@ const getConversation = async (from, to) => {
   }
 }
 
+
 module.exports = {
   addUser,
   addActiveUser,
+  GetActiveAllUser,
   getuserConversation,
   RemoveActiveUser,
   RemovePendingMsg,
@@ -174,5 +213,7 @@ module.exports = {
   findOneUser,
   findActiveOneUser,
   getPendingConversation,
-  addPendingMsg
+  addPendingMsg,
+  findOneSocketIdForUser,
+  findManyActiveUsers
 }

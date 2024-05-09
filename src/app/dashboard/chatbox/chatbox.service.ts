@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { Socket } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
 import { Storage } from '@ionic/storage-angular';
+import { LoadingController, ToastController } from '@ionic/angular/standalone';
 export interface ClientUser {
     _id: string;
     username: string;
@@ -13,14 +14,18 @@ export interface ClientUser {
 @Injectable()
 export class ChatBoxService {
     public onDestoyComponents: boolean = false;
+  private loading!: HTMLIonLoadingElement;
+
     constructor(
         private socket: Socket,
         private http: HttpClient,
-        private storage: Storage) {
+        private storage: Storage,
+        private loadingController: LoadingController,
+        private toastController: ToastController
+    ) {
         this.storage.create();
-        console.log('im calling')
     }
-
+    // checking one new user API 
     onNewUser(search: any): Observable<any> {
         const token = localStorage.getItem('token');
         const headers = {
@@ -28,45 +33,49 @@ export class ChatBoxService {
         };
         return this.http.get(`${environment.URI}/user/newUserCheck`, { headers: headers, params: { search: search } })
     }
-
-    getPendingMsg(callback: (userId: any) => void): void {
-        console.log('im calling')
-        const userId = localStorage.getItem('userId');
-        this.socket.emit('user-online', userId);
-        // this.socket.on('pending-messages', (pendingMessages: any[]) => {
-        //   // Handle the pending messages received from the server
-        //   console.log('Pending messages:', pendingMessages);
-        // });
-        this.socket.on('pending-messages', callback);
-    }
-
     forSmallScreen(): boolean {
         return window.innerWidth < 768;
-    }
-
-    disConnect() {
-        this.socket.disconnect();
     }
 
     SetItemToLocalStorage(key: any, values: any) {
         localStorage.setItem(key, JSON.stringify(values));
     }
-
-
-     async storeData(key: string, value: any) {
+    
+    async storeData(key: string, value: any) {
         try {
             // Call set() method of Storage service to store data
             await this.storage.set(key, value);
-            console.log('Data stored successfully!');
 
         } catch (error) {
             console.error('Error storing data:', error);
         }
     }
-    async getData(key: string) {
-        const retrievedValue: any = await this.storage.get(key);
+
+    async getData(key: any) {
+        const retrievedValue = await this.storage.get(key);
         return retrievedValue
     }
-    
 
+    async presentLoading() {
+        this.loading = await this.loadingController.create({
+          message: 'Loading...'
+        });
+        await this.loading.present();
+      }
+    
+      async dismissLoading() {
+        if (this.loading) {
+          await this.loading.dismiss();
+        }
+      }
+
+      async presentToast(message: string) {
+        const toast = await this.toastController.create({
+            message: message,
+            duration: 3000,
+            position: 'top',
+            cssClass: 'custom-toast'
+        });
+        toast.present();
+    }
 }

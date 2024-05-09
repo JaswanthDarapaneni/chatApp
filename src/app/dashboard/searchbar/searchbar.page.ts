@@ -14,7 +14,7 @@ import { SocketService } from 'src/app/socketservice/socket.service';
 export class SearchbarPage implements OnInit {
   public results: any = [];
   @Output() userSelected: EventEmitter<any> = new EventEmitter<any>();
-  constructor(private service: SocketService, private navCtrl: NavController) { }
+  constructor(private service: SocketService) { }
 
   ngOnInit() {
   }

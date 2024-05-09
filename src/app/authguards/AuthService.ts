@@ -3,6 +3,7 @@ import { SocketService } from "../socketservice/socket.service";
 import { LoadingController, ToastController } from "@ionic/angular";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment"
+import { RoomService } from "../dashboard/room/room.service";
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +11,7 @@ import { environment } from "../../environments/environment"
 export class AuthService {
     private uri = environment.URI;
 
-    constructor(private http: HttpClient, private socketService: SocketService, private loading: LoadingController, private toastController: ToastController) { }
+    constructor(private roomservice: RoomService, private http: HttpClient, private socketService: SocketService, private loading: LoadingController, private toastController: ToastController) { }
 
     async isLoggedIn(): Promise<boolean> {
         const user = localStorage.getItem('username');
@@ -35,7 +36,6 @@ export class AuthService {
         this.http.get(`${this.uri}/auth/verifyToken`, { headers }).subscribe((r: any) => {
             if (r.userId) {
                 localStorage.setItem('userId', r.userId)
-                this.socketService.socketLogin(r.userId);
             }
         })
         return true;
@@ -55,7 +55,11 @@ export class AuthService {
             const response = await this.http.post<any>(`${this.uri}/auth/login`, { username, password }).toPromise();
             localStorage.setItem('token', response.token);
             localStorage.setItem('username', username);
-            return response;
+            // const status = await this.roomservice.loadConversation();
+            // if (status) {
+                return response;
+            // }
+  
         } catch (error: any) {
             return error;
         }

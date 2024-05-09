@@ -8,14 +8,21 @@ import { MainRoutes } from './app/app.routes';
 import { provideHttpClient } from '@angular/common/http';
 import { Socket, SocketIoConfig } from 'ngx-socket-io';
 import { Drivers } from '@ionic/storage';
-import { IonicStorageModule, Storage, provideStorage } from '@ionic/storage-angular';
+import { Storage } from '@ionic/storage-angular';
 if (environment.production) {
   enableProdMode();
 }
 
 const socketIoConfig: SocketIoConfig = {
   url: 'http://localhost:3001',
-  options: { autoConnect: false }
+  options: {
+    autoConnect: false,
+    reconnectionAttempts: 3,
+    // reconnection: false,
+    closeOnBeforeunload: false,
+    rememberUpgrade: true,
+    reconnectionDelay: 2000
+  }
 };
 
 
@@ -24,11 +31,14 @@ bootstrapApplication(AppComponent, {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular({
       scrollPadding: false,
-      scrollAssist: false
+      scrollAssist: false,
     }),
-    provideRouter(MainRoutes,withPreloading(PreloadAllModules),withComponentInputBinding()),
+    provideRouter(MainRoutes, withPreloading(PreloadAllModules), withComponentInputBinding()),
     provideHttpClient(),
-    { provide: Socket, useFactory: () => new Socket(socketIoConfig) },
-    { provide: Storage, useFactory: () => new Storage({ name: '__mydb', description: 'conversation data storing', driverOrder: [ Drivers.IndexedDB, Drivers.LocalStorage] }) }
+    {
+      provide: Socket, useFactory: () => new Socket(socketIoConfig)
+    },
+   
+    { provide: Storage, useFactory: () => new Storage({ name: '__mydb', description: 'conversation data storing', driverOrder: [Drivers.IndexedDB, Drivers.LocalStorage] }) }
   ]
 });
