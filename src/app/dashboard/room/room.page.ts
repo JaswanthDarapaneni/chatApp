@@ -1,17 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { ConnectionStatusChangeListener, Network, NetworkStatus, NetworkStatusChangeCallback } from '@capacitor/network';
 
 import { SocketService } from '../../socketservice/socket.service';
 import { HeaderPage } from '../header/header.page';
 import { UsersPage } from '../users/users.page';
 import { ChatboxPage } from '../chatbox/chatbox.page';
-import { ClientUser, Message, RoomService, UserConversationResponse, UserWithConversation } from './room.service';
+import { ClientUser, RoomService, UserConversationResponse } from './room.service';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { IonModal, IonNavLink, IonRouterOutlet, ModalController, NavController } from '@ionic/angular/standalone';
+import { IonNavLink, IonRouterOutlet } from '@ionic/angular/standalone';
 import { OnlineOfflineService } from 'src/app/internetService/online-offline.service';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 
@@ -404,6 +403,7 @@ export class RoomPage implements OnChanges, OnInit, OnDestroy {
     }
     // getting data from user page
     handleUserSelected(selectedUser: ClientUser) {
+        console.log('calling')
         this.selectedUser = selectedUser;
     }
 

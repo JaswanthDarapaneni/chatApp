@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { IonRouterOutlet, IonApp, IonContent } from '@ionic/angular/standalone';
-import { OnlineOfflineService } from './internetService/online-offline.service';
 
 @Component({
   selector: 'app-root',

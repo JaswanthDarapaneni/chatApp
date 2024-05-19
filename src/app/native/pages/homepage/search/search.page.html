@@ -1,0 +1,5 @@
+
+<ion-buttons slot="start">
+  <ion-back-button default-href='' (click)="back()"></ion-back-button>
+  <ion-searchbar [debounce]="1000" (ionInput)="handleInput($event)"></ion-searchbar>
+</ion-buttons>

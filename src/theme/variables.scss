@@ -4,12 +4,12 @@
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
-  --ion-color-primary: #3880ff;
-  --ion-color-primary-rgb: 56, 128, 255;
-  --ion-color-primary-contrast: #ffffff;
-  --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #3171e0;
-  --ion-color-primary-tint: #4c8dff;
+  --ion-color-primary: #4B6EF7;
+	--ion-color-primary-rgb: 75,110,247;
+	--ion-color-primary-contrast: #ffffff;
+	--ion-color-primary-contrast-rgb: 255,255,255;
+	--ion-color-primary-shade: #4261d9;
+	--ion-color-primary-tint: #5d7df8;
 
   /** secondary **/
   --ion-color-secondary: #3dc2ff;
@@ -68,12 +68,12 @@
   --ion-color-medium-tint: #9d9fa6;
 
   /** light **/
-  --ion-color-light: #f4f5f8;
-  --ion-color-light-rgb: 244, 245, 248;
-  --ion-color-light-contrast: #000000;
-  --ion-color-light-contrast-rgb: 0, 0, 0;
-  --ion-color-light-shade: #d7d8da;
-  --ion-color-light-tint: #f5f6f9;
+  --ion-color-light: #F5F6FF;
+	--ion-color-light-rgb: 245,246,255;
+	--ion-color-light-contrast: #000000;
+	--ion-color-light-contrast-rgb: 0,0,0;
+	--ion-color-light-shade: #d8d8e0;
+	--ion-color-light-tint: #f6f7ff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -225,20 +225,12 @@
     --ion-color-step-900: #e7e7e7;
     --ion-color-step-950: #f3f3f3;
 
-    --ion-item-background: #000000;
+    --ion-item-background: #1e1e1e;
 
-    --ion-toolbar-background: #000000;
+    --ion-toolbar-background: #1f1f1f;
 
-    --ion-tab-bar-background: #000000;
+    --ion-tab-bar-background: #1f1f1f;
 
-    --ion-card-background: #000000;
+    --ion-card-background: #1e1e1e;
   }
-}
-
-html {
-  /* 
-   * For more information on dynamic font scaling, visit the documentation:
-   * https://ionicframework.com/docs/layout/dynamic-font-scaling
-   */
-  --ion-dynamic-font: var(--ion-default-dynamic-font);
 }

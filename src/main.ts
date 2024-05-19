@@ -9,9 +9,11 @@ import { provideHttpClient } from '@angular/common/http';
 import { Socket, SocketIoConfig } from 'ngx-socket-io';
 import { Drivers } from '@ionic/storage';
 import { Storage } from '@ionic/storage-angular';
+
 if (environment.production) {
   enableProdMode();
 }
+
 
 const socketIoConfig: SocketIoConfig = {
   url: 'http://localhost:3001',
@@ -25,7 +27,6 @@ const socketIoConfig: SocketIoConfig = {
   }
 };
 
-
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
@@ -34,6 +35,7 @@ bootstrapApplication(AppComponent, {
       scrollAssist: false,
     }),
     provideRouter(MainRoutes, withPreloading(PreloadAllModules), withComponentInputBinding()),
+    
     provideHttpClient(),
     {
       provide: Socket, useFactory: () => new Socket(socketIoConfig)

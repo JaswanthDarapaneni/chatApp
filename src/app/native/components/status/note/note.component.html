@@ -1,0 +1,24 @@
+<!-- 
+<ion-item>
+  <ion-label>Font:</ion-label>
+  <ion-select [(ngModel)]="selectedFont">
+    <ion-select-option value="Arial">Arial</ion-select-option>
+    <ion-select-option value="Verdana">Verdana</ion-select-option>
+    <ion-select-option value="Times New Roman">Times New Roman</ion-select-option>
+  </ion-select>
+</ion-item>
+<ion-item>
+  <ion-label>Color:</ion-label>
+  <input type="text" [(ngModel)]="selectedColor" [(colorPicker)]="selectedColor" (ion-Click)="openToggle()" [cpToggle]="Toggle" [style.background]="selectedColor" />
+</ion-item>
+<ion-button expand="block" (click)="applyStyles()">Apply Styles</ion-button>
+
+<div class="preview" [ngStyle]="{'font-family': selectedFont, 'color': selectedColor}">
+  {{ textInput }}
+</div>
+  <ion-textarea [(ngModel)]="textInput" placeholder="Enter your text" rows="10"></ion-textarea>
+  -->
+  <textarea [(ngModel)]="textInput" class="fullscreen-textarea" ></textarea>
+  <div class="controls-overlay">
+    <!-- Add your controls here, such as buttons for sending messages, changing text color, etc. -->
+  </div>

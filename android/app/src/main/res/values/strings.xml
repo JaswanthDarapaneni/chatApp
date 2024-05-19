@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">chatNative</string>
+    <string name="title_activity_main">chatNative</string>
+    <string name="package_name">com.chatNative</string>
+    <string name="custom_url_scheme">com.chatNative</string>
+</resources>

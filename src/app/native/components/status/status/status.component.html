@@ -1,0 +1,16 @@
+<ion-item lines="full" (click)="redirect(item)">
+  <ion-avatar slot="start">
+    <img [src]="item?.photo" />
+  </ion-avatar>
+  <ion-label>
+    {{item?.name}}
+  </ion-label>
+</ion-item>
+
+<ion-modal #new_view_status [isOpen]="view_new_status" (willDismiss)="onWillDismiss($event)">
+  <ng-template>
+    <ion-content color="light">
+      <app-watchstatus [data]="data" [user]="user" (back)="cancel()"></app-watchstatus>
+    </ion-content>
+  </ng-template>
+</ion-modal>

@@ -1,0 +1,64 @@
+<div class="parent-container" *ngIf='headerShow'>
+  <ion-item detail="false" lines="none" class="transparent-background">
+    <ion-icon class="ion-activatable ripple-parent circle" name="arrow-back" slot="start" (click)="close()">
+      <ion-ripple-effect type="unbounded"></ion-ripple-effect>
+    </ion-icon>
+    <ion-avatar aria-hidden="true" [button]="true">
+      <img alt="" [src]="user?.photo" />
+    </ion-avatar>
+    <ion-label style="padding-left: 5px;">{{user?.name}}</ion-label>
+  </ion-item>
+  <div class="progress-bars">
+    <div *ngFor="let item of data; let i = index" style="flex-grow: 1; margin-right: 10px;">
+      <ion-progress-bar [value]="i === activeSwiperIndex ? progress : (i < activeSwiperIndex ? 1 : 0)"
+        buffer="1"></ion-progress-bar>
+    </div>
+  </div>
+</div>
+
+<swiper-container style="position: relative; z-index: 1;" appLongPress (longPress)="onLongPress()"
+  *ngIf="data[0]?.duration" #swiper [autoplay]="{delay: duration, disableOnInteraction: false }"
+  (swiperinit)="swiperInit($event)" (swiperslidechange)="swiperslidechange($event)"
+  (swipertouchstart)="onTouchStart($event)" (swipertouchend)="touchEnd($event)">
+  <swiper-slide *ngFor="let item of data" loading="lazy">
+    <div *ngIf="item.type === 'image'" class="image-container">
+      <img [src]="item.url" alt="Image" class="status-image">
+    </div>
+    <div *ngIf="item.type === 'video'">
+      <video>
+        <source src="{{ item.text }}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <div class="text" *ngIf="item.type === 'text'" [style.color]="item.text_colour"
+       [style.background-color]="item.background_colour">
+      <p class="text-inner">{{ item.text }}</p>
+    </div>
+  </swiper-slide>
+
+</swiper-container>
+  <ion-footer class="input-container">
+    <ion-toolbar >
+      <ion-textarea 
+        autoGrow 
+        rows="1" 
+        placeholder="Replay" 
+        class="ion-text-center"
+        (click)="showFooter()"
+        >
+      </ion-textarea>
+      <ion-buttons slot="end">
+        <ion-fab-button *ngIf="ShowButtons" size="small" color="primary"  (click)="sendMessage()">
+          <ion-icon name="send"></ion-icon>
+        </ion-fab-button>
+      </ion-buttons>
+      <ion-buttons slot="start">
+        <ion-fab-button *ngIf="ShowButtons" size="small" color="primary" (click)="sendMessage()">
+          <ion-icon name="happy"></ion-icon>
+        </ion-fab-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-footer>
+
+
+

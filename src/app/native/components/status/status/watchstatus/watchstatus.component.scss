@@ -1,0 +1,132 @@
+swiper-container {
+  --swiper-pagination-bullet-inactive-color: var(--ion-color-step-200, #cccccc);
+  --swiper-pagination-color: var(--ion-color-primary, #0054e9);
+  --swiper-pagination-progressbar-bg-color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.25);
+  --swiper-scrollbar-bg-color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.1);
+  --swiper-scrollbar-drag-bg-color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.5);
+  height: 100%;
+}
+
+swiper-slide {
+  position: relative;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+
+  text-align: center;
+  box-sizing: border-box;
+}
+
+swiper-slide img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
+.text {
+  height: 100%;
+  width: fill-avilable;
+}
+
+.text-inner {
+  height: 100%;
+  margin-top: 2px;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  justify-items: stretch;
+}
+
+.parent-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: min-content;
+  z-index: 2; /* Set a higher z-index */
+  background-color: transparent; /* Set parent div background color to transparent */
+}
+
+.transparent-background {
+  --background: transparent !important; /* Set ion-item background color to transparent */
+}
+
+
+.progress-bars {
+  display: flex;
+  justify-content: space-between;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2; /* Ensure progress bars are above ion-item */
+}
+
+.parent-container ::ng-deep ion-icon[slot=start] {
+  margin-inline-end: 10px !important; /* Override the margin */
+  // -webkit-margin-end: initial !important; /* Override the margin for WebKit browsers */
+}
+
+.ripple-parent {
+  position: relative;
+  overflow: hidden;
+}
+
+
+.image-container {
+  display: flex;
+  justify-content: center; /* Center image horizontally */
+  align-items: center; /* Center image vertically */
+  width: 100%;
+  height: 100%;
+}
+.input-container{
+  position: fixed;
+  bottom: 0px;
+  z-index: 3;
+  width: 100%;
+  border-radius: 30px;
+  background-color: rgb(0 0 0 / 48%);
+}
+
+.status-image {
+  max-width: 100%; /* Ensure image fits within container */
+  max-height: 100%; /* Ensure image fits within container */
+}
+
+.button-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: none;
+}
+
+.input-container:focus .button-container {
+  display: flex;
+}
+
+.toolbar-background {
+  background: inherit;
+}
+
+ion-content {
+    ion-list {
+        background: transparent;
+    }
+}
+ion-footer {
+    ion-toolbar {
+        padding: 0 3px;
+        ion-textarea {
+            border: 1px solid var(--ion-color-medium);
+            border-radius: 20px;
+            margin: 0.5vh 0;
+        }
+    }
+}
+
+
+

@@ -1,0 +1,49 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" id="popover_font">
+        <div class="ion-text-capitalize">
+          <h5 [style.font-family]="fontStyle">Aa</h5>
+        </div>
+      </ion-button>
+      <ion-button fill="clear" id="popover">
+        <ion-icon name="color-palette-outline" [style.background]="fontColor"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-popover #popover trigger="popover" triggerAction="click">
+  <ng-template>
+    <ion-content class="ion-padding ion-text-center">
+      <ion-icon style="height: 20px; width: 20px;" (click)="changeFontColor(color)" *ngFor="let color of TextColors"
+        name="ellipse-outline" [style.background]="color"></ion-icon>
+    </ion-content>
+  </ng-template>
+</ion-popover>
+
+<ion-popover #popover_font trigger="popover_font" triggerAction="click">
+  <ng-template>
+    <ion-content class="ion-padding ion-text-center">
+      <ion-item color="Dark-shade" lines="none" *ngFor="let font of fontStyles" (click)="changeFontStyle(font)">
+        {{font}}
+      </ion-item>
+    </ion-content>
+  </ng-template>
+</ion-popover>
+<ion-content  (click)="handleContentClick($event)" [fullscreen]="true" [scrollY]="false" (click)="showTextArea($event)"
+  class="fullscreen-container">
+  <div class="fullscreen-textarea-container" [ngStyle]="{ 'background-color': backgroundColour }">
+    <ion-textarea [spellcheck]="false" placeholder="Type Something" [autoGrow]="true"
+      (ngModelChange)="onTextChange($event)" [(ngModel)]="textUpdate" class="fullscreen-textarea"
+      [style.color]="fontColor" [style.font-family]="fontStyle" [style.background]="backgroundColour"
+      [style.font-size]="fontSize" maxlength="500" no-padding></ion-textarea>
+  </div>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-button slot="end" (click)="shareStatus()">Send</ion-button>
+  </ion-toolbar>
+</ion-footer>

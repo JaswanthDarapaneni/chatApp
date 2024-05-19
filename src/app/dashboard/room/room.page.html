@@ -1,10 +1,28 @@
 <app-header (logout)="ngOnDestroy()"></app-header>
 
-<!-- <div *ngIf="initialize"> -->
 <ion-content class="ion-padding">
   <div class="ion-page main" id="main-content">
     <div class="sidebar">
-      <h1>hi</h1>
+      <ion-tabs>
+        <ion-tab-bar slot="bottom">
+          <ion-tab-button tab="home">
+            <ion-icon name="play-circle"></ion-icon>
+            Listen Now
+          </ion-tab-button>
+          <ion-tab-button tab="radio">
+            <ion-icon name="radio"></ion-icon>
+            Radio
+          </ion-tab-button>
+          <ion-tab-button tab="library">
+            <ion-icon name="library"></ion-icon>
+            Library
+          </ion-tab-button>
+          <ion-tab-button tab="search">
+            <ion-icon name="search"></ion-icon>
+            Search
+          </ion-tab-button>
+        </ion-tab-bar>
+      </ion-tabs>
     </div>
     <div class="userbar">
       <ng-container>
@@ -14,6 +32,7 @@
     </div>
 
     <div class="chatbar">
+      <!-- <ion-router-outlet></ion-router-outlet> -->
       <ng-container *ngIf="selectedUser">
         <app-chatbox [selectedUser]='selectedUser' (messageSent)="handleMessageSent($event)"
           #chatComponent></app-chatbox>
@@ -22,4 +41,3 @@
 
   </div>
 </ion-content>
-<!-- </div> -->

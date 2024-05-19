@@ -1,0 +1,9 @@
+ion-toolbar {
+    display: flex;
+    justify-content: space-between;
+    ion-title {
+        letter-spacing: 2px;
+        font-size: 1.1rem !important;
+        width: fit-content;
+    }
+}

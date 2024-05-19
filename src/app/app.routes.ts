@@ -4,12 +4,23 @@ import { LoginPage } from './auth/login/login.page';
 import { AuthGuardNegate } from './authguards/AuthGuardNegate';
 
 export const MainRoutes: Routes = [
+  // {
+  //   path: 'dashBoard',
+  //   canActivate: [AuthGuard],
+  //   loadChildren: () => import('./dashboard/room/room.routes').then((m) => m.roomRoutes)
+  // },
   {
-    path: 'dashBoard',
-    canActivate: [AuthGuard],
-    loadChildren: () => import('./dashboard/room/room.routes').then((m) => m.roomRoutes)
+    path: '',
+    redirectTo: 'home',
+    // redirectTo: 'dashBoard',
+    pathMatch: 'full'
   },
-  
+
+  {
+    path: 'home',
+    loadChildren: () => import('./native/pages/homepage/home.routes').then((m) => m.HomeRoutes)
+  },
+
   {
     path: 'login',
     canActivate: [AuthGuardNegate],

@@ -1,0 +1,59 @@
+<ion-toolbar>
+  <ion-title>Status</ion-title>
+  <ion-buttons slot="end">
+    <ion-button>
+      <ion-icon slot="icon-only" ios="ellipsis-horizontal" md="ellipsis-vertical"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+</ion-toolbar>
+<ion-item-group>
+  <ion-item-divider>
+    <ion-label>A</ion-label>
+  </ion-item-divider>
+  <app-com-status *ngFor="let item of users" [item]="item"></app-com-status>
+</ion-item-group>
+
+
+<ion-fab slot="fixed" horizontal="end" vertical="bottom">
+  <ion-fab-button (click)="handileNote()">
+    <ion-icon name="note"></ion-icon>
+  </ion-fab-button>
+  <br>
+  <ion-fab-button class="camera-fab" (click)="handileCamera()">
+    <ion-icon name="camera"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+
+
+<ion-modal #new_image_status_modal [isOpen]="add_new_status" (willDismiss)="onWillDismiss($event)">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+          <ion-button (click)="cancel()">Cancel</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content color="light">
+      <ion-list class="ion-margin-top" [style.background]="'transparent'" lines="none">
+        <app-camera>
+        </app-camera>
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-modal #new_text_status_modal [isOpen]="new_text_status" (willDismiss)="onWillDismiss($event)">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-buttons slot="start">
+          <ion-button (click)="cancel()">Cancel</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content color="light" >
+        <app-note></app-note>
+    </ion-content>
+  </ng-template>
+</ion-modal>

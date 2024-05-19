@@ -1,10 +1,18 @@
 import { Routes } from '@angular/router';
+import { MobchatPage } from '../mobchat/mobchat.page';
 
 export const roomRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
       import('./room.page').then((m) => m.RoomPage),
+    children: [
+      {
+        path: 'chat',
+        loadChildren: () =>
+          import('../mobchat/mobchat.page').then((m) => m.MobchatPage)
+      }
+    ]
   },
   {
     path: 'chatbox',
@@ -22,4 +30,4 @@ export const roomRoutes: Routes = [
     pathMatch: 'full',
   },
 ];
-  
+
